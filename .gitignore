@@ -1,0 +1,9 @@
+**/andrey.*
+**/.env
+**/media
+**/.pytest_cache
+**/.vscode
+**/venv
+**/.venv
+**/__pycache__
+**/data
