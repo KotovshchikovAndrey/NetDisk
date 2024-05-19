@@ -1,19 +1,21 @@
 from datetime import datetime
 from uuid import UUID
+
 from sqlalchemy import (
     CheckConstraint,
+    DateTime,
     ForeignKey,
+    Integer,
     String,
     Text,
-    Integer,
     orm,
-    DateTime,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
-from infrastructure.sqlalchemy.models.base_model import BaseModel
+
 from domain import consts
 from domain.values.resource_values import MediaType, SharedAccess, UserAccess
+from infrastructure.sqlalchemy.models.base_model import BaseModel
 
 
 class ResourceModel(BaseModel):
@@ -54,7 +56,6 @@ class ResourceModel(BaseModel):
         DateTime(timezone=False),
         nullable=False,
         server_default=text("TIMEZONE('utc', NOW())"),
-        # нужен тригер на уровне бд
     )
 
     user_accesses: orm.Mapped[list[UserAccess]] = orm.mapped_column(

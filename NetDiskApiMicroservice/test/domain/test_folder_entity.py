@@ -1,19 +1,21 @@
-import pytest
 from uuid import UUID
-from domain.factories.folder_factory import FolderResourceFactory
-from domain.values.resource_values import MediaType, SharedAccess
+
+import pytest
+
 from domain import consts
 from domain.exceptions.resource_exceptions import (
-    TooLongDescriptionException,
-    TooLongResourceNameException,
     InvalidByteSizeTypeException,
     InvalidDescriptionTypeException,
     InvalidDownloadUriFormatException,
     InvalidDownloadUriTypeException,
     InvalidResourceNameTypeException,
     NegativeByteSizeNumberException,
+    TooLongDescriptionException,
     TooLongDownloadUriException,
+    TooLongResourceNameException,
 )
+from domain.factories.folder_factory import FolderFactory
+from domain.values.resource_values import MediaType, SharedAccess
 
 
 class TestFolderEntity:
@@ -32,7 +34,7 @@ class TestFolderEntity:
         download_uri: str,
         description: str,
     ) -> None:
-        factory = FolderResourceFactory(
+        factory = FolderFactory(
             name=name,
             description=description,
             download_uri=download_uri,
@@ -65,7 +67,7 @@ class TestFolderEntity:
         download_uri: str,
         description: str,
     ):
-        factory = FolderResourceFactory(
+        factory = FolderFactory(
             name=name,
             description=description,
             download_uri=download_uri,
@@ -92,7 +94,7 @@ class TestFolderEntity:
         download_uri: str,
         description: str,
     ):
-        factory = FolderResourceFactory(
+        factory = FolderFactory(
             name=name,
             description=description,
             download_uri=download_uri,

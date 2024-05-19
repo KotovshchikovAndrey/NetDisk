@@ -1,40 +1,36 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID
-from src.domain.entities.folder_entity import FolderResource
+
+from domain.entities.folder_entity import Folder
 from domain.factories.base_factory import BaseFactory
-from domain.values.resource_values import (
-    FolderName,
-    Description,
-    DownloadUri,
-    SharedAccess,
-    UserAccess,
-)
+from domain.values import resource_values as values
 
 
 @dataclass(frozen=True, kw_only=True)
-class FolderResourceFactory(BaseFactory[FolderResource]):
-    owner_id: UUID
+class FolderFactory(BaseFactory[Folder]):
+    owner_id: str
     name: str
     download_uri: str
     description: str = field(default="")
-    shared_access: SharedAccess = field(default=SharedAccess.PRIVATE)
+    shared_access: values.SharedAccess = field(default=values.SharedAccess.PRIVATE)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
-    def create(self) -> FolderResource:
-        owner_access = UserAccess(
+    def create(self) -> Folder:
+        owner_access = values.UserAccess(
             owner_id=self.owner_id,
-            access=UserAccess.Access.OWNER,
+            access=values.UserAccess.Access.OWNER,
         )
 
-        return FolderResource(
+        return Folder(
             id=self.id,
-            owner_id=self.owner_id,
-            name=FolderName(self.name),
-            description=Description(self.description),
-            download_uri=DownloadUri(self.download_uri),
+            owner_id=UUID(self.owner_id),
+            name=values.FolderName(self.name),
+            description=values.Description(self.description),
+            download_uri=values.DownloadUri(self.download_uri),
             shared_access=self.shared_access,
             byte_size=None,
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
+            created_at=self.created_at,
+            updated_at=self.created_at,
             user_accesses=[owner_access],
         )

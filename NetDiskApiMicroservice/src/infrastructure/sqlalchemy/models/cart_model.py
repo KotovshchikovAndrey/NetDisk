@@ -1,6 +1,8 @@
 from datetime import datetime
 from uuid import UUID
-from sqlalchemy import UniqueConstraint, ForeignKey, orm, DateTime, text
+
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, orm, text
+
 from infrastructure.sqlalchemy.models.base_model import BaseModel
 from infrastructure.sqlalchemy.models.resource_model import ResourceModel
 
@@ -12,13 +14,11 @@ class CartModel(BaseModel):
     updated_at: orm.Mapped[datetime] = orm.mapped_column(
         DateTime(timezone=False),
         server_default=text("TIMEZONE('utc', NOW())"),
-        # нужен тригер на уровне бд
     )
 
-    resources: orm.Mapped[list["ResourceModel"]] = orm.relationship(
+    resources: orm.Mapped[list["CartResourceModel"]] = orm.relationship(
         uselist=True,
         lazy="noload",
-        secondary="CartResourceModel",
     )
 
 
@@ -37,3 +37,11 @@ class CartResourceModel(BaseModel):
         ForeignKey("resource.id", ondelete="CASCADE"),
         nullable=False,
     )
+
+    deleted_at: orm.Mapped[datetime] = orm.mapped_column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=text("TIMEZONE('utc', NOW())"),
+    )
+
+    resource: orm.Mapped["ResourceModel"] = orm.relationship()

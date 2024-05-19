@@ -1,19 +1,19 @@
 """init tables
 
-Revision ID: b11f222ea820
+Revision ID: 8baabb41920c
 Revises: 
-Create Date: 2024-05-19 00:30:08.325472
+Create Date: 2024-05-19 01:20:21.247533
 
 """
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "b11f222ea820"
+revision: str = "8baabb41920c"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -77,7 +77,7 @@ def upgrade() -> None:
         ),
         sa.Column(
             "user_accesses",
-            postgresql.JSONB(astext_type=sa.Text(), none_as_null=True),
+            postgresql.JSONB(none_as_null=True, astext_type=sa.Text()),
             server_default="{}",
             nullable=False,
         ),
@@ -94,6 +94,12 @@ def upgrade() -> None:
         "cart_resource",
         sa.Column("cart_id", sa.Uuid(), nullable=False),
         sa.Column("resource_id", sa.Uuid(), nullable=False),
+        sa.Column(
+            "deleted_at",
+            sa.DateTime(),
+            server_default=sa.text("TIMEZONE('utc', NOW())"),
+            nullable=False,
+        ),
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.ForeignKeyConstraint(["cart_id"], ["cart.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["resource_id"], ["resource.id"], ondelete="CASCADE"),

@@ -1,20 +1,11 @@
 import re
 from dataclasses import dataclass
-from uuid import UUID
-from domain import consts
 from enum import StrEnum
+from uuid import UUID
+
+from domain import consts
+from domain.exceptions import resource_exceptions as exceptions
 from domain.values.base_value import BaseValue
-from domain.exceptions.resource_exceptions import (
-    InvalidByteSizeTypeException,
-    InvalidDescriptionTypeException,
-    InvalidDownloadUriFormatException,
-    InvalidDownloadUriTypeException,
-    InvalidResourceNameTypeException,
-    NegativeByteSizeNumberException,
-    TooLongDescriptionException,
-    TooLongDownloadUriException,
-    TooLongResourceNameException,
-)
 
 
 @dataclass(frozen=True)
@@ -23,10 +14,10 @@ class ResourceName(BaseValue[str]):
 
     def validate(self) -> None:
         if not isinstance(self.value, str):
-            raise InvalidResourceNameTypeException(self.value)
+            raise exceptions.InvalidResourceNameTypeException(self.value)
 
         if len(self.value) > consts.MAX_RESOURCE_NAME_LENGTH:
-            raise TooLongResourceNameException(self.value)
+            raise exceptions.TooLongResourceNameException(self.value)
 
 
 @dataclass(frozen=True)
@@ -58,10 +49,10 @@ class Description(BaseValue[str]):
 
     def validate(self) -> None:
         if not isinstance(self.value, str):
-            raise InvalidDescriptionTypeException(self.value)
+            raise exceptions.InvalidDescriptionTypeException(self.value)
 
         if len(self.value) > consts.MAX_RESOURCE_DESCRIPTION_LENGTH:
-            raise TooLongDescriptionException(self.value)
+            raise exceptions.TooLongDescriptionException(self.value)
 
 
 @dataclass(frozen=True)
@@ -70,10 +61,10 @@ class ByteSize(BaseValue[int]):
 
     def validate(self) -> None:
         if not isinstance(self.value, int):
-            raise InvalidByteSizeTypeException(self.value)
+            raise exceptions.InvalidByteSizeTypeException(self.value)
 
         if self.value < 0:
-            raise NegativeByteSizeNumberException(self.value)
+            raise exceptions.NegativeByteSizeNumberException(self.value)
 
 
 @dataclass(frozen=True)
@@ -82,13 +73,13 @@ class DownloadUri(BaseValue[str]):
 
     def validate(self) -> None:
         if not isinstance(self.value, str):
-            raise InvalidDownloadUriTypeException(self.value)
+            raise exceptions.InvalidDownloadUriTypeException(self.value)
 
         if len(self.value) > consts.MAX_RESOURCE_DOWNLOAD_URI_LENGTH:
-            raise TooLongDownloadUriException(self.value)
+            raise exceptions.TooLongDownloadUriException(self.value)
 
-        if not re.match("(?:http|https):\/\/\w+.(?:com|ru)", self.value):
-            raise InvalidDownloadUriFormatException(self.value)
+        if not re.match("(?:http|https):\/\/[A-Za-z.-_]+.(?:com|ru)", self.value):
+            raise exceptions.InvalidDownloadUriFormatException(self.value)
 
 
 @dataclass(frozen=True)

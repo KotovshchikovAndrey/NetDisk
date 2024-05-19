@@ -1,28 +1,20 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
+
 from domain.entities.base_entity import BaseEntity
-from domain.values.resource_values import (
-    FileName,
-    FolderName,
-    ByteSize,
-    DownloadUri,
-    MediaType,
-    Description,
-    SharedAccess,
-    UserAccess,
-)
+from domain.values import resource_values as values
 
 
 @dataclass(eq=False, kw_only=True)
 class Resource(BaseEntity):
     owner_id: UUID
-    name: FileName | FolderName
-    description: Description
-    download_uri: DownloadUri
-    media_type: MediaType
-    byte_size: ByteSize | None
-    shared_access: SharedAccess
-    user_accesses: list[UserAccess] = field(default_factory=list)
+    name: values.FileName | values.FolderName
+    description: values.Description
+    download_uri: values.DownloadUri
+    media_type: values.MediaType
+    byte_size: values.ByteSize | None
+    shared_access: values.SharedAccess
+    user_accesses: list[values.UserAccess] = field(default_factory=list)
     created_at: datetime
     updated_at: datetime

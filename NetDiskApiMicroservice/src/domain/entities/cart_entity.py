@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID
+
 from domain.entities.base_entity import BaseEntity
 from domain.entities.resource_entity import Resource
 
@@ -18,7 +19,7 @@ class Cart(BaseEntity):
         self.resources.clear()
 
 
-@dataclass(frozen=True)
-class CartResource:
+@dataclass(eq=False, kw_only=True)
+class CartResource(BaseEntity):
     resource: Resource
     deleted_at: datetime = field(default_factory=lambda: datetime.now(UTC))

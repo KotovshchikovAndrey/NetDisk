@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from domain.exceptions.base_exception import BaseException
 
 

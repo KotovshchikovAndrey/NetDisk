@@ -1,9 +1,9 @@
 import typing as tp
-from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from uuid import UUID, uuid4
-from domain.entities.base_entity import BaseEntity
 
+from domain.entities.base_entity import BaseEntity
 
 TEntity = tp.TypeVar("TEntity", bound=BaseEntity)
 

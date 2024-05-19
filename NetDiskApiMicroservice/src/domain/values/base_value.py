@@ -1,7 +1,6 @@
 import typing as tp
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
-
+from dataclasses import dataclass
 
 TValue = tp.TypeVar("TValue", bound=object)
 
