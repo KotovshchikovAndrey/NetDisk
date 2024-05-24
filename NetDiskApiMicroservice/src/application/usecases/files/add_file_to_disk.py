@@ -1,6 +1,6 @@
-from application.dtos.file_dtos import AddFileToDiskInput
-from application.usecases.base_usecase import IBaseUsecase
-from domain.factories.file_factory import FileFactory
+from application.dtos.files import AddFileToDiskInput
+from application.usecases.base import IBaseUsecase
+from domain.factories.files import FileFactory
 from domain.repositories.unit_of_work import UnitOfWork
 
 

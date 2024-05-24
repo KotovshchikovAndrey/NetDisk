@@ -4,6 +4,6 @@ __all__ = (
     "CartSqlalchemyRepository",
 )
 
-from .cart_repository import CartSqlalchemyRepository
-from .file_repository import FileSqlalchemyRepository
-from .folder_repository import FolderSqlalchemyRepository
+from .carts import CartSqlalchemyRepository
+from .files import FileSqlalchemyRepository
+from .folders import FolderSqlalchemyRepository

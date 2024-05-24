@@ -1,9 +1,9 @@
 import typing as tp
 from abc import ABC, abstractmethod
 
-from domain.repositories.cart_repository import ICartRepository
-from domain.repositories.file_repository import IFileRepository
-from domain.repositories.folder_repository import IFolderRepository
+from domain.repositories.carts import ICartRepository
+from domain.repositories.files import IFileRepository
+from domain.repositories.folders import IFolderRepository
 
 
 class UnitOfWork(ABC):

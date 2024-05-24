@@ -20,6 +20,10 @@ class SqlalchemyUnitOfWork(UnitOfWork):
 
         return await super().__aenter__()
 
+    async def __aexit__(self, *args, **kwargs) -> None:
+        await super().__aexit__(*args, **kwargs)
+        await self._current_session.remove()  # release session and back that to pool
+
     async def commit(self) -> None:
         await self._current_session.commit()
 

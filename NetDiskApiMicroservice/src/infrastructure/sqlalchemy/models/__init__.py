@@ -1,3 +1,3 @@
-from .base_model import BaseModel
-from .cart_model import CartModel
-from .resource_model import ResourceModel
+from .base import BaseModel
+from .cart import CartModel
+from .resource import ResourceModel

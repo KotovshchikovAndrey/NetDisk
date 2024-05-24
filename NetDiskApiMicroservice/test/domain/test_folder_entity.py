@@ -1,21 +1,8 @@
-from uuid import UUID
-
 import pytest
-
 from domain import consts
-from domain.exceptions.resource_exceptions import (
-    InvalidByteSizeTypeException,
-    InvalidDescriptionTypeException,
-    InvalidDownloadUriFormatException,
-    InvalidDownloadUriTypeException,
-    InvalidResourceNameTypeException,
-    NegativeByteSizeNumberException,
-    TooLongDescriptionException,
-    TooLongDownloadUriException,
-    TooLongResourceNameException,
-)
-from domain.factories.folder_factory import FolderFactory
-from domain.values.resource_values import MediaType, SharedAccess
+from domain.exceptions import resources as exceptions
+from domain.factories.folders import FolderFactory
+from domain.values.resources import MediaType, SharedAccess
 
 
 class TestFolderEntity:
@@ -29,7 +16,7 @@ class TestFolderEntity:
     )
     def test_create_folder_success(
         self,
-        owner_id: UUID,
+        owner_id: str,
         name: str,
         download_uri: str,
         description: str,
@@ -45,7 +32,7 @@ class TestFolderEntity:
         assert new_folder.name.to_generic_type() == name
         assert new_folder.description.to_generic_type() == description
         assert new_folder.download_uri.to_generic_type() == download_uri
-        assert new_folder.owner_id == owner_id
+        assert new_folder.owner_id.to_generic_type() == owner_id
         assert new_folder.byte_size is None
         assert new_folder.media_type == MediaType.FOLDER
         assert new_folder.shared_access == SharedAccess.PRIVATE
@@ -62,11 +49,11 @@ class TestFolderEntity:
     )
     def test_create_folder_raise_too_long_resource_name_exception(
         self,
-        owner_id: UUID,
+        owner_id: str,
         name: str,
         download_uri: str,
         description: str,
-    ):
+    ) -> None:
         factory = FolderFactory(
             name=name,
             description=description,
@@ -74,7 +61,7 @@ class TestFolderEntity:
             owner_id=owner_id,
         )
 
-        with pytest.raises(TooLongResourceNameException):
+        with pytest.raises(exceptions.TooLongResourceNameException):
             factory.create()
 
     @pytest.mark.parametrize(
@@ -89,11 +76,11 @@ class TestFolderEntity:
     )
     def test_create_folder_raise_too_long_description_exception(
         self,
-        owner_id: UUID,
+        owner_id: str,
         name: str,
         download_uri: str,
         description: str,
-    ):
+    ) -> None:
         factory = FolderFactory(
             name=name,
             description=description,
@@ -101,5 +88,5 @@ class TestFolderEntity:
             owner_id=owner_id,
         )
 
-        with pytest.raises(TooLongDescriptionException):
+        with pytest.raises(exceptions.TooLongDescriptionException):
             factory.create()

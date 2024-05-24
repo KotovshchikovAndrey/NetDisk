@@ -1,6 +1,20 @@
 version: '3.9'
 
 services:
+  pgpool:
+    build:
+      context: .
+    container_name: pgpool
+    restart: always
+    volumes:
+      - pgpool_config:/etc/pgpool2
+      - pgpool_data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    networks:
+      postgres_net:
+        ipv4_address: 172.21.0.4
+
   postgres_master:
     image: postgres
     container_name: postgres_master
@@ -15,6 +29,38 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
     ports:
       - 5434:5432
+    networks:
+      postgres_net:
+        ipv4_address: 172.21.0.2
+
+  postgres_slave-1:
+    image: postgres
+    container_name: postgres_slave-1
+    restart: always
+    volumes:
+      - postgres_slave-1:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+    ports:
+      - 5435:5432
+    networks:
+      postgres_net:
+        ipv4_address: 172.21.0.3
 
 volumes:
+  pgpool_config:
+  pgpool_data:
   postgres_master:
+  postgres_slave-1:
+
+
+networks:
+  postgres_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
