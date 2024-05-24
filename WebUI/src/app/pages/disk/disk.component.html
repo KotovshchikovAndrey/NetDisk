@@ -1,0 +1,38 @@
+<div class="container py-7 px-10">
+  <div class="flex items-center mb-10">
+    <p class="text-[17px] font-medium mr-5">Document</p>
+    <p class="mr-5 font-medium">></p>
+    <p class="text-[17px] font-medium mr-5">Laptop</p>
+    <p class="mr-5 font-medium">></p>
+    <p class="text-[17px] font-medium">Andrey</p>
+  </div>
+
+  <h3 class="mb-5 text-3xl font-medium">Andrey</h3>
+
+  <div class="max-h-[calc(100vh-190px)] overflow-y-auto">
+    <div class="grid grid-cols-4 py-3 sticky top-0 bg-white border-b-2">
+      <p>Название</p>
+      <p>Владелец</p>
+      <p>Изменено</p>
+      <p>Размер</p>
+    </div>
+    @for (resource of resources; track $index) {
+    <div
+      class="grid grid-cols-4 py-3 justify-items-start hover:bg-stone-100 cursor-pointer"
+    >
+      <div class="flex items-center pl-5">
+        <img src="assets/folder.svg" class="w-9 mr-3" alt="" />
+        <p>{{ resource.name }}</p>
+      </div>
+
+      <div class="flex items-center">
+        <img src="assets/unknown-avatar.svg" class="w-9 mr-3" alt="" />
+        <p>{{ resource.ownerName }}</p>
+      </div>
+
+      <p>{{ resource.updatedAt }}</p>
+      <p>{{ resource.size }}</p>
+    </div>
+    }
+  </div>
+</div>
