@@ -1,6 +1,6 @@
+from application.dtos.files import ReplaceDownloadUriInput
 from application.exceptions.files import NoSuchFileException
 from application.usecases.base import IBaseUsecase
-from application.dtos.files import ReplaceDownloadUriInput
 from domain.repositories.unit_of_work import UnitOfWork
 
 
@@ -12,10 +12,10 @@ class ReplaceDownloadUriUsecase(IBaseUsecase[ReplaceDownloadUriInput, None]):
 
     async def execute(self, dto: ReplaceDownloadUriInput) -> None:
         async with self._unit_of_work as uow:
-            file = await uow.files.get_one(dto.id)
+            file = await uow.resources.get_file_by_id(dto.id)
             if file is None:
-                raise NoSuchFileException(dto.id)
+                raise NoSuchFileException(str(dto.id))
 
-            file.download_uri = dto.download_uri
-            await uow.files.save(file)
+            file.replace_download_uri(dto.download_uri)
+            await uow.resources.save(file)
             await uow.commit()

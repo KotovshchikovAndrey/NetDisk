@@ -1,26 +1,31 @@
-from uuid import uuid4
+import typing as tp
 
 from fastapi import APIRouter
-from sqlalchemy import select, text
-from infrastructure.sqlalchemy.models.cart import CartModel
-from setup.config import settings
-from infrastructure.sqlalchemy.connection import SqlalchemyConnection
-from infrastructure.sqlalchemy.models.resource import ResourceModel
+
+from application.usecases.folders.create_folder import CreateFolderUsecase
+from application.usecases.folders.upload_file_to_folder import UploadFileToFolderUsecase
+from presentation.rest.api.v1.folders.schemas import (
+    CreateFolderRequest,
+    UploadFileToFolderRequest,
+)
+from presentation.rest.schemas import ApiResponse
+from setup.ioc_container import container
 
 router = APIRouter(prefix="/folders")
 
 
-@router.get("/")
-async def get_my_files():
-    connection = SqlalchemyConnection(connection_url=settings.database.url, echo=True)
-    session = connection.create_session()
+@router.post("/", response_model=ApiResponse)
+async def create_folder(request: CreateFolderRequest):
+    usecase = container.get(CreateFolderUsecase)
+    await usecase.execute(request.to_application_dto())
+    return {"message": "Folder has been created!"}
 
-    # query = select(CartModel).limit(1)
-    # result = await session.scalar(query)
-    # print(result.id)
-    model = CartModel(id=uuid4(), owner_id=uuid4())
-    session.add(model)
-    await session.commit()
-    await session.aclose()
 
-    return 200
+@router.post("/files", response_model=ApiResponse)
+async def upload_file_to_folder(request: UploadFileToFolderRequest):
+    usecase = container.get(UploadFileToFolderUsecase)
+    await usecase.execute(request.to_application_dto())
+    return {"message": "File has been uploaded to folder successfully!"}
+
+
+# TODO: Need to check is download_uri already exists in usecases

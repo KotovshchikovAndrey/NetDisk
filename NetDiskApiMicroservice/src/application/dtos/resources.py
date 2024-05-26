@@ -1,30 +1,28 @@
 import typing as tp
-from dataclasses import field
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from pydantic.dataclasses import dataclass
-
-from domain.entities.file import File
+from domain.entities.resource import Resource
 from domain.values import resources as values
 
 
-@dataclass(frozen=True, kw_only=True, config=dict(validate_assignment=True))
-class FileOutput:
+@dataclass(frozen=True, kw_only=True)
+class ResourceOutput:
     id: UUID
     owner_id: UUID
     name: str
     description: str
     download_uri: str
     media_type: values.MediaType
-    byte_size: int
+    byte_size: int | None
     shared_access: values.SharedAccess
     user_accesses: list[values.UserAccess]
     created_at: datetime
     updated_at: datetime
 
     @classmethod
-    def from_domain(cls: tp.Type["FileOutput"], entity: File):
+    def from_domain(cls: tp.Type["ResourceOutput"], entity: Resource):
         return cls(
             id=entity.id,
             owner_id=entity.owner_id,
@@ -40,17 +38,8 @@ class FileOutput:
         )
 
 
-@dataclass(frozen=True, kw_only=True, config=dict(validate_assignment=True))
-class UploadFileToDiskInput:
-    id: UUID | None = field(default=None)
+@dataclass(frozen=True, kw_only=True)
+class GetMyResourcesInput:
     owner_id: UUID
-    name: str
-    download_uri: str
-    byte_size: int
-    created_at: datetime
-
-
-@dataclass(frozen=True, kw_only=True, config=dict(validate_assignment=True))
-class ReplaceDownloadUriInput:
-    id: UUID
-    download_uri: str
+    limit: int
+    offset: int

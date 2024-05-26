@@ -2,13 +2,11 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 from domain.repositories.carts import ICartRepository
-from domain.repositories.files import IFileRepository
-from domain.repositories.folders import IFolderRepository
+from domain.repositories.resources import IResourceRepository
 
 
 class UnitOfWork(ABC):
-    files: IFileRepository
-    folders: IFolderRepository
+    resources: IResourceRepository
     carts: ICartRepository
 
     async def __aenter__(self) -> tp.Self:

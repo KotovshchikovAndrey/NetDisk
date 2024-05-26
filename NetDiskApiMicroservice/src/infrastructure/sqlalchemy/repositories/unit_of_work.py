@@ -2,7 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.repositories.unit_of_work import UnitOfWork
 from infrastructure.sqlalchemy.connection import SqlalchemyConnection
-from infrastructure.sqlalchemy.repositories import *
+from infrastructure.sqlalchemy.repositories import (
+    CartSqlalchemyRepository,
+    ResourceSqlalchemyRepository,
+)
 
 
 class SqlalchemyUnitOfWork(UnitOfWork):
@@ -14,15 +17,14 @@ class SqlalchemyUnitOfWork(UnitOfWork):
 
     async def __aenter__(self):
         self._current_session = self._connection.create_session()
-        self.files = FileSqlalchemyRepository(self._current_session)
-        self.folders = FolderSqlalchemyRepository(self._current_session)
+        self.resources = ResourceSqlalchemyRepository(self._current_session)
         self.carts = CartSqlalchemyRepository(self._current_session)
 
         return await super().__aenter__()
 
     async def __aexit__(self, *args, **kwargs) -> None:
         await super().__aexit__(*args, **kwargs)
-        await self._current_session.remove()  # release session and back that to pool
+        await self._connection.release_session()  # release session and back that to pool
 
     async def commit(self) -> None:
         await self._current_session.commit()

@@ -1,10 +1,11 @@
 from asyncio import current_task
+
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     AsyncEngine,
+    AsyncSession,
+    async_scoped_session,
     async_sessionmaker,
     create_async_engine,
-    async_scoped_session,
 )
 
 
@@ -32,3 +33,6 @@ class SqlalchemyConnection:
 
     async def close(self) -> None:
         await self._engine.dispose()
+
+    async def release_session(self) -> None:
+        await self._session_provider.remove()

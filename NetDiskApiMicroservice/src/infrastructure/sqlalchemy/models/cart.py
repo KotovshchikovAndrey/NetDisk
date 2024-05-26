@@ -11,6 +11,7 @@ class CartModel(BaseModel):
     __tablename__ = "cart"
 
     owner_id: orm.Mapped[UUID] = orm.mapped_column(nullable=False, unique=True)
+
     updated_at: orm.Mapped[datetime] = orm.mapped_column(
         DateTime(timezone=False),
         server_default=text("TIMEZONE('utc', NOW())"),

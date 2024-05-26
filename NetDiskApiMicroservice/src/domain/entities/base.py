@@ -1,11 +1,13 @@
 from abc import ABC
-from dataclasses import dataclass, field
-from domain.values.base import Id
+from dataclasses import field
+from uuid import UUID, uuid4
+
+from pydantic.dataclasses import dataclass
 
 
-@dataclass(eq=False, kw_only=True)
+@dataclass(eq=False, kw_only=True, config=dict(validate_assignment=True))
 class BaseEntity(ABC):
-    id: Id = field(default_factory=Id.generate)
+    id: UUID = field(default_factory=uuid4)
 
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, BaseEntity):

@@ -4,3 +4,5 @@ MAX_RESOURCE_DOWNLOAD_URI_LENGTH = 255
 
 ALLOWED_AUDIO_EXT = {"mp3", "mp4"}
 ALLOWED_IMAGE_EXT = {"png", "jpg", "jpeg"}
+
+DOWNLOAD_FOLDER_URI = "http://some.microservice.com/{0}"

@@ -1,25 +1,24 @@
 import re
-from dataclasses import dataclass
 from enum import StrEnum
+from uuid import UUID
+
+from pydantic.dataclasses import dataclass
 
 from domain import consts
 from domain.exceptions import resources as exceptions
-from domain.values.base import BaseValue, Id
+from domain.values.base import BaseValue
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class ResourceName(BaseValue[str]):
     value: str
 
     def validate(self) -> None:
-        if not isinstance(self.value, str):
-            raise exceptions.InvalidResourceNameTypeException(self.value)
-
         if len(self.value) > consts.MAX_RESOURCE_NAME_LENGTH:
             raise exceptions.TooLongResourceNameException(self.value)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class FileName(ResourceName):
     def define_media_type(self) -> "MediaType":
         ext = self.get_ext()
@@ -38,42 +37,33 @@ class FileName(ResourceName):
         return ext
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class FolderName(ResourceName): ...
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class Description(BaseValue[str]):
     value: str
 
     def validate(self) -> None:
-        if not isinstance(self.value, str):
-            raise exceptions.InvalidDescriptionTypeException(self.value)
-
         if len(self.value) > consts.MAX_RESOURCE_DESCRIPTION_LENGTH:
             raise exceptions.TooLongDescriptionException(self.value)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class ByteSize(BaseValue[int]):
     value: int
 
     def validate(self) -> None:
-        if not isinstance(self.value, int):
-            raise exceptions.InvalidByteSizeTypeException(self.value)
-
         if self.value < 0:
             raise exceptions.NegativeByteSizeNumberException(self.value)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class DownloadUri(BaseValue[str]):
     value: str
 
     def validate(self) -> None:
-        if not isinstance(self.value, str):
-            raise exceptions.InvalidDownloadUriTypeException(self.value)
-
         if len(self.value) > consts.MAX_RESOURCE_DOWNLOAD_URI_LENGTH:
             raise exceptions.TooLongDownloadUriException(self.value)
 
@@ -81,9 +71,9 @@ class DownloadUri(BaseValue[str]):
             raise exceptions.InvalidDownloadUriFormatException(self.value)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, config=dict(validate_assignment=True))
 class UserAccess:
-    owner_id: Id
+    owner_id: UUID
     access: "Access"
 
     class Access(StrEnum):

@@ -14,6 +14,9 @@ services:
     networks:
       postgres_net:
         ipv4_address: 172.21.0.4
+    depends_on:
+      - postgres_master
+      - postgres_slave-1
 
   postgres_master:
     image: postgres
@@ -50,6 +53,17 @@ services:
     networks:
       postgres_net:
         ipv4_address: 172.21.0.3
+    depends_on:
+      - postgres_master
+
+  memcached:
+    image: memcached:latest
+    container_name: memcached
+    restart: always
+    ports:
+      - 11211:11211
+    command:
+      - '--memory-limit=1024'
 
 volumes:
   pgpool_config:
@@ -64,3 +78,7 @@ networks:
     ipam:
       config:
         - subnet: 172.21.0.0/16
+
+
+# rm -r /var/lib/postgresql/*
+# pg_basebackup --host=172.21.0.2 --username=replicator --pgdata=/var/lib/postgresql/data --wal-method=stream --write-recovery-conf
