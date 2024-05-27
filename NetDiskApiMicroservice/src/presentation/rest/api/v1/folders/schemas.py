@@ -18,9 +18,6 @@ class CreateFolderRequest(BaseModel):
         str, Field(max_length=consts.MAX_RESOURCE_DESCRIPTION_LENGTH, default="")
     ]
 
-    class Config:
-        from_attributes = True
-
     def to_application_dto(self) -> dtos.CreateFolderInput:
         return dtos.CreateFolderInput(
             description=self.description,
@@ -31,17 +28,18 @@ class CreateFolderRequest(BaseModel):
         )
 
 
+class CreateFolderResponse(BaseModel):
+    folder_id: UUID
+
+
 class UploadFileToFolderRequest(BaseModel):
     file_id: tp.Annotated[UUID | None, Field(default=None)]
     owner_id: UUID
     name: tp.Annotated[str, at.MaxLen(consts.MAX_RESOURCE_NAME_LENGTH)]
     download_uri: tp.Annotated[str, at.MaxLen(consts.MAX_RESOURCE_DOWNLOAD_URI_LENGTH)]
-    byte_size: tp.Annotated[int, at.Gt(0)]
+    byte_size: tp.Annotated[int, at.Ge(0)]
     created_at: tp.Annotated[datetime, Field(datetime_format="%Y/%m/%d %H:%M")]
     folder_id: UUID
-
-    class Config:
-        from_attributes = True
 
     def to_application_dto(self) -> dtos.UploadFileToFolderInput:
         return dtos.UploadFileToFolderInput(
@@ -53,3 +51,7 @@ class UploadFileToFolderRequest(BaseModel):
             folder_id=self.folder_id,
             created_at=self.created_at,
         )
+
+
+class UploadFileToFolderResponse(BaseModel):
+    file_id: UUID

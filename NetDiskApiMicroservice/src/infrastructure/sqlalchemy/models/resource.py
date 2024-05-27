@@ -23,7 +23,7 @@ class ResourceModel(BaseModel):
     __tablename__ = "resource"
 
     __table_args__ = (
-        CheckConstraint("byte_size > 0", name="check_byte_size_is_positive_number"),
+        CheckConstraint("byte_size >= 0", name="check_byte_size_is_positive_number"),
     )
 
     name: orm.Mapped[str] = orm.mapped_column(
@@ -78,12 +78,3 @@ class ResourceModel(BaseModel):
         uselist=True,
         lazy="noload",
     )
-
-    def get_insert_values(self) -> dict[str, str]:
-        insert_values = super().get_insert_values()
-        # insert_values["shared_access"] = self.shared_access
-        # insert_values["user_accesses"] = [
-        #     asdict(user_access) for user_access in self.user_accesses
-        # ]
-
-        return insert_values

@@ -48,8 +48,8 @@ class TestFileUsecases:
         )
 
         usecase = UploadFileToDiskUsecase(unit_of_work=mock_unit_of_work)
-        output = await usecase.execute(dto)
-        assert output is None
+        file_id = await usecase.execute(dto)
+        assert isinstance(file_id, UUID)
 
     @pytest.mark.parametrize(
         "download_uri",
@@ -66,8 +66,8 @@ class TestFileUsecases:
     ) -> None:
         dto = dtos.ReplaceDownloadUriInput(id=file_id, download_uri=download_uri)
         usecase = ReplaceDownloadUriUsecase(unit_of_work=mock_unit_of_work)
-        output = await usecase.execute(dto)
-        assert output is None
+        file_id = await usecase.execute(dto)
+        assert isinstance(file_id, UUID)
 
     @pytest.mark.parametrize(
         "download_uri",

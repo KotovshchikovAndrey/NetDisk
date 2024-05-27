@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from uuid import UUID
 
 from application.dtos.folders import CreateFolderInput
 from application.usecases.base import IBaseUsecase
@@ -6,7 +7,7 @@ from domain.factories.folders import FolderFactory
 from domain.repositories.unit_of_work import UnitOfWork
 
 
-class CreateFolderUsecase(IBaseUsecase[CreateFolderInput, None]):
+class CreateFolderUsecase(IBaseUsecase[CreateFolderInput, UUID]):
     _unit_of_work: UnitOfWork
 
     def __init__(self, unit_of_work: UnitOfWork) -> None:
@@ -19,3 +20,5 @@ class CreateFolderUsecase(IBaseUsecase[CreateFolderInput, None]):
         async with self._unit_of_work as uow:
             await uow.resources.save(new_folder)
             await uow.commit()
+
+            return new_folder.id

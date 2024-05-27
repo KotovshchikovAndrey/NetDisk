@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from sqlalchemy.sql import delete, select
+from sqlalchemy.sql import delete, exists, select
 
 from domain.entities.file import File
 from domain.entities.folder import Folder
@@ -34,8 +34,7 @@ class ResourceSqlalchemyRepository(IResourceRepository):
 
         update_values = {}
         for column in ResourceModel.get_columns():
-            if column not in {"created_at", "updated_at", "id"}:
-                update_values[column] = getattr(stmt.excluded, column)
+            update_values[column] = getattr(stmt.excluded, column)
 
         stmt = stmt.on_conflict_do_update(
             constraint="resource_pkey", set_=update_values
@@ -77,21 +76,21 @@ class ResourceSqlalchemyRepository(IResourceRepository):
     async def get_folder_by_id(
         self, id: UUID, fetch_resources: bool = False
     ) -> Folder | None:
+        stmt = select(ResourceModel).where(ResourceModel.id == id)
         if not fetch_resources:
-            stmt = select(ResourceModel).where(ResourceModel.id == id)
             model = await self._session.scalar(stmt)
             if model is not None:
                 return FolderMapper.to_domain(model)
 
-        stmt = (
-            select(ResourceModel)
-            .where(ResourceModel.id == id)
-            .options(joinedload(ResourceModel.resources))
-        )
-
+        stmt = stmt.options(joinedload(ResourceModel.resources))
         model = await self._session.scalar(stmt)
         if model is not None:
             return FolderMapper.to_domain(model)
+
+    async def check_download_uri_occupied(self, download_uri: str) -> bool:
+        stmt = exists().where(ResourceModel.download_uri == download_uri).select()
+        result = await self._session.scalar(stmt)
+        return bool(result)
 
     async def _save_folder_resources(
         self, folder_id: UUID, resources: list[Resource]
@@ -106,8 +105,7 @@ class ResourceSqlalchemyRepository(IResourceRepository):
         stmt = insert(ResourceModel).values(insert_values_list)
         update_values = {}
         for column in ResourceModel.get_columns():
-            if column not in {"created_at", "updated_at", "id"}:
-                update_values[column] = getattr(stmt.excluded, column)
+            update_values[column] = getattr(stmt.excluded, column)
 
         stmt = stmt.on_conflict_do_update(
             constraint="resource_pkey", set_=update_values

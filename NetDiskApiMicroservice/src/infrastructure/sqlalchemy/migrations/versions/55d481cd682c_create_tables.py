@@ -55,7 +55,7 @@ def upgrade() -> None:
             ),
             nullable=False,
         ),
-        sa.Column("byte_size", sa.Integer(), nullable=False),
+        sa.Column("byte_size", sa.Integer(), nullable=True),
         sa.Column(
             "shared_access",
             sa.Enum(
@@ -83,7 +83,7 @@ def upgrade() -> None:
         ),
         sa.Column("parent_resource_id", sa.UUID(), nullable=True),
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.CheckConstraint("byte_size > 0", name="check_byte_size_is_positive_number"),
+        sa.CheckConstraint("byte_size >= 0", name="check_byte_size_is_positive_number"),
         sa.ForeignKeyConstraint(
             ["parent_resource_id"], ["resource.id"], ondelete="CASCADE"
         ),

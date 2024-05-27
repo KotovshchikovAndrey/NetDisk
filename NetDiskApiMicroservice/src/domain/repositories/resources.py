@@ -20,3 +20,6 @@ class IResourceRepository(IBaseRepository[Resource]):
     async def get_folder_by_id(
         self, id: UUID, fetch_resources: bool = False
     ) -> Folder | None: ...
+
+    @abstractmethod
+    async def check_download_uri_occupied(self, download_uri: str) -> bool: ...

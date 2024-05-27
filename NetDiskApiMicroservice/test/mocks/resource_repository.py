@@ -38,3 +38,6 @@ class MockResourceRepository(IResourceRepository):
         self._database.append(entity)
 
     async def remove_by_id(self, id: UUID) -> None: ...
+
+    async def check_download_uri_occupied(self, download_uri: str) -> bool:
+        return False
