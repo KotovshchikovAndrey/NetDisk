@@ -1,8 +1,8 @@
 """create triggers
 
-Revision ID: fcae19968429
-Revises: 55d481cd682c
-Create Date: 2024-05-26 13:20:09.181941
+Revision ID: e4fed60fe0cc
+Revises: 5c0a3a4a3a7c
+Create Date: 2024-05-29 11:12:31.287641
 
 """
 
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "fcae19968429"
-down_revision: Union[str, None] = "55d481cd682c"
+revision: str = "e4fed60fe0cc"
+down_revision: Union[str, None] = "5c0a3a4a3a7c"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

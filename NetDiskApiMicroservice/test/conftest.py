@@ -48,6 +48,6 @@ def file(file_id: UUID, owner_id: UUID) -> File:
         name=values.FileName("new_file.txt"),
         shared_access=values.SharedAccess.PRIVATE,
         user_accesses=[
-            values.UserAccess(owner_id=owner_id, access=values.UserAccess.Access.OWNER)
+            values.UserAccess(owner_id=str(owner_id), access=values.Access.OWNER)
         ],
     )

@@ -1,10 +1,16 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import orm
+from sqlalchemy import DateTime, orm, text
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import declared_attr
 
 
 class BaseModel(orm.DeclarativeBase):
+    @declared_attr.directive
+    def __tablename__(cls) -> str:
+        return cls.__name__.replace("Model", "").lower()
+
     id: orm.Mapped[uuid.UUID] = orm.mapped_column(UUID(as_uuid=True), primary_key=True)
 
     def get_insert_values(self) -> dict[str, str]:
@@ -19,3 +25,17 @@ class BaseModel(orm.DeclarativeBase):
     @classmethod
     def get_columns(cls) -> list[str]:
         return list(map(lambda column: column.name, cls.__table__.columns))
+
+
+class TimestampMixin:
+    updated_at: orm.Mapped[datetime] = orm.mapped_column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=text("TIMEZONE('utc', NOW())"),
+    )
+
+    created_at: orm.Mapped[datetime] = orm.mapped_column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=text("TIMEZONE('utc', NOW())"),
+    )

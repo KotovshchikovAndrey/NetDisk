@@ -22,8 +22,8 @@ class FolderFactory(BaseFactory[Folder]):
     def create(self) -> Folder:
         download_uri = consts.DOWNLOAD_FOLDER_URI.format(self.id)
         owner_access = values.UserAccess(
-            owner_id=self.owner_id,
-            access=values.UserAccess.Access.OWNER,
+            owner_id=str(self.owner_id),
+            access=values.Access.OWNER,
         )
 
         return Folder(

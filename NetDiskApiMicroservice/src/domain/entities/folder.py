@@ -23,12 +23,12 @@ class Folder(Resource):
 
     def _check_user_can_add_resource(self, user_id: UUID) -> bool:
         needed_accesses = {
-            values.UserAccess.Access.EDIT,
-            values.UserAccess.Access.OWNER,
+            values.Access.EDIT,
+            values.Access.OWNER,
         }
 
         for user_access in self.user_accesses:
-            if user_access.owner_id == user_id and any(needed_accesses):
+            if user_access["owner_id"] == str(user_id) and any(needed_accesses):
                 return True
 
         return False

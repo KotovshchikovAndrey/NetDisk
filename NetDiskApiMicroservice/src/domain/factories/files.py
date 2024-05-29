@@ -22,8 +22,8 @@ class FileFactory(BaseFactory[File]):
     def create(self) -> File:
         filename = values.FileName(self.name)
         owner_access = values.UserAccess(
-            owner_id=self.owner_id,
-            access=values.UserAccess.Access.OWNER,
+            owner_id=str(self.owner_id),
+            access=values.Access.OWNER,
         )
 
         return File(

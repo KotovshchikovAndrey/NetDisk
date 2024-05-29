@@ -11,18 +11,9 @@ class FolderMapper:
         for resource_model in model.resources:
             resources.append(ResourceMapper.to_domain(resource_model))
 
-        user_accesses = []
-        for user_access in model.user_accesses:
-            user_access = values.UserAccess(
-                owner_id=user_access["owner_id"],
-                access=user_access["access"],
-            )
-
-            user_accesses.append(user_access)
-
         return Folder(
             id=model.id,
-            owner_id=model.id,
+            owner_id=model.owner_id,
             name=values.FolderName(model.name),
             description=values.Description(model.description),
             download_uri=values.DownloadUri(model.download_uri),
@@ -30,7 +21,7 @@ class FolderMapper:
             created_at=model.created_at,
             updated_at=model.updated_at,
             parent_folder_id=model.parent_resource_id,
-            user_accesses=user_accesses,
+            user_accesses=model.user_accesses,
             resources=resources,
         )
 
@@ -39,12 +30,6 @@ class FolderMapper:
         resources = []
         for resource in entity.resources:
             resources.append(ResourceMapper.from_domain(resource))
-
-        user_accesses = []
-        for user_access in entity.user_accesses:
-            user_accesses.append(
-                {"owner_id": str(user_access.owner_id), "access": user_access.access}
-            )
 
         return ResourceModel(
             id=entity.id,

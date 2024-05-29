@@ -31,13 +31,9 @@ class ResourceSqlalchemyRepository(IResourceRepository):
     async def save(self, entity: Resource) -> None:
         model = ResourceMapper.from_domain(entity)
         stmt = insert(ResourceModel).values(**model.get_insert_values())
-
-        update_values = {}
-        for column in ResourceModel.get_columns():
-            update_values[column] = getattr(stmt.excluded, column)
-
         stmt = stmt.on_conflict_do_update(
-            constraint="resource_pkey", set_=update_values
+            constraint="resource_pkey",
+            set_=dict(stmt.excluded),
         )
 
         await self._session.execute(stmt)
@@ -103,12 +99,9 @@ class ResourceSqlalchemyRepository(IResourceRepository):
             insert_values_list.append(insert_values)
 
         stmt = insert(ResourceModel).values(insert_values_list)
-        update_values = {}
-        for column in ResourceModel.get_columns():
-            update_values[column] = getattr(stmt.excluded, column)
-
         stmt = stmt.on_conflict_do_update(
-            constraint="resource_pkey", set_=update_values
+            constraint="resource_pkey",
+            set_=dict(stmt.excluded),
         )
 
         await self._session.execute(stmt)

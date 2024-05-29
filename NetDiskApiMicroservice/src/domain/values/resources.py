@@ -1,8 +1,8 @@
 import re
 from enum import StrEnum
-from uuid import UUID
 
 from pydantic.dataclasses import dataclass
+from typing_extensions import TypedDict
 
 from domain import consts
 from domain.exceptions import resources as exceptions
@@ -28,6 +28,8 @@ class FileName(ResourceName):
 
             case ext if ext in consts.ALLOWED_AUDIO_EXT:
                 return MediaType.AUDIO
+
+            # ...
 
             case _:
                 return MediaType.UNKNOWN
@@ -71,16 +73,16 @@ class DownloadUri(BaseValue[str]):
             raise exceptions.InvalidDownloadUriFormatException(self.value)
 
 
-@dataclass(frozen=True, config=dict(validate_assignment=True))
-class UserAccess:
-    owner_id: UUID
+class UserAccess(TypedDict):
+    owner_id: str
     access: "Access"
 
-    class Access(StrEnum):
-        READ = "READ"
-        COMMENT = "COMMENT"
-        EDIT = "EDIT"
-        OWNER = "OWNER"
+
+class Access(StrEnum):
+    READ = "READ"
+    COMMENT = "COMMENT"
+    EDIT = "EDIT"
+    OWNER = "OWNER"
 
 
 class MediaType(StrEnum):

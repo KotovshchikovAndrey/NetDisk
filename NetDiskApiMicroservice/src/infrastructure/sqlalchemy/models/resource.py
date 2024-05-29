@@ -1,27 +1,14 @@
-from dataclasses import asdict
-from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import (
-    CheckConstraint,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-    orm,
-    text,
-)
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, String, Text, orm
 from sqlalchemy.dialects.postgresql import JSONB
 
 from domain import consts
 from domain.values.resources import MediaType, SharedAccess, UserAccess
-from infrastructure.sqlalchemy.models.base import BaseModel
+from infrastructure.sqlalchemy.models.base import BaseModel, TimestampMixin
 
 
-class ResourceModel(BaseModel):
-    __tablename__ = "resource"
-
+class ResourceModel(TimestampMixin, BaseModel):
     __table_args__ = (
         CheckConstraint("byte_size >= 0", name="check_byte_size_is_positive_number"),
     )
@@ -51,19 +38,7 @@ class ResourceModel(BaseModel):
 
     shared_access: orm.Mapped[SharedAccess] = orm.mapped_column(nullable=False)
 
-    created_at: orm.Mapped[datetime] = orm.mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=text("TIMEZONE('utc', NOW())"),
-    )
-
-    updated_at: orm.Mapped[datetime] = orm.mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=text("TIMEZONE('utc', NOW())"),
-    )
-
-    user_accesses: orm.Mapped[list[dict]] = orm.mapped_column(
+    user_accesses: orm.Mapped[list[UserAccess]] = orm.mapped_column(
         JSONB(none_as_null=True),
         nullable=False,
         server_default=r"{}",

@@ -3,19 +3,12 @@ from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, orm, text
 
-from infrastructure.sqlalchemy.models.base import BaseModel
+from infrastructure.sqlalchemy.models.base import BaseModel, TimestampMixin
 from infrastructure.sqlalchemy.models.resource import ResourceModel
 
 
-class CartModel(BaseModel):
-    __tablename__ = "cart"
-
+class CartModel(TimestampMixin, BaseModel):
     owner_id: orm.Mapped[UUID] = orm.mapped_column(nullable=False, unique=True)
-
-    updated_at: orm.Mapped[datetime] = orm.mapped_column(
-        DateTime(timezone=False),
-        server_default=text("TIMEZONE('utc', NOW())"),
-    )
 
     resources: orm.Mapped[list["CartResourceModel"]] = orm.relationship(
         uselist=True,
@@ -24,7 +17,6 @@ class CartModel(BaseModel):
 
 
 class CartResourceModel(BaseModel):
-    __tablename__ = "cart_resource"
     __table_args__ = (
         UniqueConstraint("cart_id", "resource_id", name="unique_cart_resource_ids"),
     )
