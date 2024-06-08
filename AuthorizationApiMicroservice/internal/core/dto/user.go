@@ -21,10 +21,10 @@ type RefreshTokenInput struct {
 type ConfirmSignInInput struct {
 	UserID   string
 	DeviceID string
-	Code     uint
+	Code     string
 }
 
 type VerifyInput struct {
 	UserID string
-	Code   uint
+	Code   string
 }

@@ -12,7 +12,7 @@ const (
 
 type Code struct {
 	ID        string
-	Value     uint
+	Value     string
 	UserID    string
 	DeviceID  string
 	CreatedAt time.Time

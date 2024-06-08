@@ -11,11 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// 	TODO:
-// 	Logout(ctx context.Context, refreshToken string) error
-// 	ConfirmSignIn(ctx context.Context, dto dto.ConfirmSignInInput) (*dto.TokenPairOutput, error)
-// 	Verify(ctx context.Context, dto dto.VerifyInput) error
-
 type UserService struct {
 	repository   port.UserRepository
 	tokenService port.TokenService
@@ -26,7 +21,7 @@ func NewUserService(
 	repository port.UserRepository,
 	tokenService port.TokenService,
 	codeService port.CodeService,
-) *UserService {
+) port.UserService {
 	return &UserService{
 		repository:   repository,
 		tokenService: tokenService,
@@ -99,6 +94,75 @@ func (service *UserService) RefreshToken(ctx context.Context, dto dto.RefreshTok
 	tokenPair, err := service.tokenService.RefreshPair(ctx, dto.RefreshToken)
 	if err != nil {
 		return nil, err
+	}
+
+	return tokenPair, nil
+}
+
+func (service *UserService) Logout(ctx context.Context, refreshToken string) error {
+	err := service.tokenService.Revoke(ctx, refreshToken)
+	if err != nil {
+		return domain.ErrInternal
+	}
+
+	return nil
+}
+
+func (service *UserService) Verify(ctx context.Context, dto dto.VerifyInput) error {
+	user, err := service.repository.GetByID(ctx, dto.UserID)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			return err
+		}
+
+		return domain.ErrInternal
+	}
+
+	if user.IsVerified {
+		return domain.ErrUserAlreadyVerified
+	}
+
+	code, err := service.codeService.CheckVerificationCode(ctx, dto.Code, *user)
+	if err != nil {
+		if err == domain.ErrInvalidCode {
+			return err
+		}
+
+		return domain.ErrInternal
+	}
+
+	go service.codeService.Revoke(ctx, *code)
+
+	user.IsVerified = true
+	service.repository.Save(ctx, *user)
+
+	return nil
+}
+
+func (service *UserService) ConfirmSignIn(ctx context.Context, dto dto.ConfirmSignInInput) (*dto.TokenPairOutput, error) {
+	user, err := service.repository.GetByID(ctx, dto.UserID)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			return nil, err
+		}
+
+		return nil, domain.ErrInternal
+	}
+
+	code, err := service.codeService.CheckSignInCode(ctx, dto.Code, *user, dto.DeviceID)
+	if err != nil {
+		if err == domain.ErrInvalidCode {
+			return nil, err
+		}
+
+		return nil, err
+	}
+
+	go service.codeService.Revoke(ctx, *code)
+
+	tokenPair, err := service.tokenService.IssuePair(ctx, user.ID, dto.DeviceID)
+	if err != nil {
+		return nil, domain.ErrInternal
 	}
 
 	return tokenPair, nil

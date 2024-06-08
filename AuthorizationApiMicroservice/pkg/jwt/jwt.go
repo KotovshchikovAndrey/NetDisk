@@ -16,16 +16,18 @@ const publicKey = ""
 const privateKey = ""
 
 type Payload struct {
-	subject string
-	iat     int64
-	exp     int64
+	Jti     string
+	Subject string
+	Iat     int64
+	Exp     int64
 }
 
-func GenerateJwt(subject string, ttl uint) (string, error) {
+func GenerateJwt(payload Payload) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"subject": subject,
-		"iat":     time.Now().UTC().Unix(),
-		"exp":     time.Now().UTC().Add(time.Second * time.Duration(ttl)).Unix(),
+		"jti":     payload.Jti,
+		"subject": payload.Subject,
+		"iat":     payload.Iat,
+		"exp":     payload.Exp,
 	})
 
 	tokenString, err := token.SignedString(privateKey)
@@ -56,8 +58,9 @@ func TryDecodeJwt(tokenString string) (*Payload, error) {
 	}
 
 	return &Payload{
-		subject: payload["subject"].(string),
-		iat:     payload["iat"].(int64),
-		exp:     exp,
+		Jti:     payload["jti"].(string),
+		Subject: payload["subject"].(string),
+		Iat:     payload["iat"].(int64),
+		Exp:     exp,
 	}, nil
 }
