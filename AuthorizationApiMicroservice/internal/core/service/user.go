@@ -72,14 +72,14 @@ func (service *UserService) SignIn(ctx context.Context, dto dto.SignInInput) (*p
 	user, err := service.repository.GetByEmail(ctx, dto.Email)
 	if err != nil {
 		if err == domain.ErrNotFound {
-			return nil, err
+			return nil, domain.ErrInvalidLoginOrPassword
 		}
 
 		return nil, domain.ErrInternal
 	}
 
 	if err := crypto.CheckPassword(dto.Password, user.HashedPassword); err != nil {
-		return nil, domain.ErrUnauthorized
+		return nil, domain.ErrInvalidLoginOrPassword
 	}
 
 	err = service.codeService.SendSignInCode(ctx, *user, dto.DeviceID)
