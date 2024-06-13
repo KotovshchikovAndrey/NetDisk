@@ -18,13 +18,8 @@ type RefreshTokenInput struct {
 	RefreshToken string
 }
 
-type ConfirmSignInInput struct {
+type VerifyInput struct {
 	UserID   string
 	DeviceID string
 	Code     string
-}
-
-type VerifyInput struct {
-	UserID string
-	Code   string
 }

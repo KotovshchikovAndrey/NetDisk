@@ -5,8 +5,7 @@ import "time"
 type CodePurpose string
 
 const (
-	SignIn         CodePurpose = "SignIn"
-	Verify         CodePurpose = "VERIFY"
+	VerifySignUp   CodePurpose = "VERIFY_SIGN_UP"
 	ChangePassword CodePurpose = "CHANGE_PASSWORD"
 )
 
@@ -14,8 +13,11 @@ type Code struct {
 	ID        string
 	Value     string
 	UserID    string
-	DeviceID  string
 	CreatedAt time.Time
 	ExpiredAt time.Time
 	Purpose   CodePurpose
+}
+
+func (code *Code) IsExired() bool {
+	return code.ExpiredAt.Before(time.Now().UTC())
 }

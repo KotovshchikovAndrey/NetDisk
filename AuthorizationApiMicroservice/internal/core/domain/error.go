@@ -9,6 +9,7 @@ var (
 	ErrUnauthorized           = errors.New("unauthorized")
 	ErrInvalidLoginOrPassword = errors.New("invalid login or password")
 	ErrInvalidCode            = errors.New("invalid code")
+	ErrCodeExpired            = errors.New("code expired")
 	ErrUserAlreadyVerified    = errors.New("user already verified")
 	ErrInvalidToken           = errors.New("invalid token")
 	ErrTokenExpired           = errors.New("token expired")
