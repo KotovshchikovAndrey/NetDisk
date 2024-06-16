@@ -1,7 +1,6 @@
 package mongo
 
 import (
-	"authorization/internal/adapter/config"
 	"authorization/internal/core/domain"
 	"authorization/internal/core/port"
 	"context"
@@ -91,16 +90,8 @@ type UserMongoRepository struct {
 	client *mongo.Client
 }
 
-func NewUserMongoRepository(config *config.Config) (port.UserRepository, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MongoUri))
-	if err != nil {
-		return nil, err
-	}
-
-	return &UserMongoRepository{client: client}, nil
+func NewUserMongoRepository(client *mongo.Client) port.UserRepository {
+	return &UserMongoRepository{client: client}
 }
 
 func (repository *UserMongoRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
@@ -146,11 +137,7 @@ func (repository *UserMongoRepository) Save(ctx context.Context, user *domain.Us
 		options.Update().SetUpsert(true),
 	)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (repository *UserMongoRepository) getUserCollection() *mongo.Collection {

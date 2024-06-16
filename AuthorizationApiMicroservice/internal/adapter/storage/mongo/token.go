@@ -1,7 +1,6 @@
 package mongo
 
 import (
-	"authorization/internal/adapter/config"
 	"authorization/internal/core/domain"
 	"authorization/internal/core/port"
 	"context"
@@ -43,22 +42,12 @@ func convertToTokenDomain(token *TokenDocument) *domain.Token {
 	}
 }
 
-// 	RevokeByUser(ctx context.Context, userId string) error
-
 type TokenMongoRepository struct {
 	client *mongo.Client
 }
 
-func NewTokenMongoRepository(config *config.Config) (port.TokenRepository, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MongoUri))
-	if err != nil {
-		return nil, err
-	}
-
-	return &TokenMongoRepository{client: client}, nil
+func NewTokenMongoRepository(client *mongo.Client) port.TokenRepository {
+	return &TokenMongoRepository{client: client}
 }
 
 func (repository *TokenMongoRepository) GetByID(ctx context.Context, id string) (*domain.Token, error) {
@@ -88,11 +77,7 @@ func (repository *TokenMongoRepository) Save(ctx context.Context, token *domain.
 		options.Update().SetUpsert(true),
 	)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (repository *TokenMongoRepository) RevokeByUserDevice(ctx context.Context, userId string, deviceId string) error {
@@ -103,11 +88,7 @@ func (repository *TokenMongoRepository) RevokeByUserDevice(ctx context.Context, 
 		bson.M{"$set": bson.M{"is_revoked": true}},
 	)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (repository *TokenMongoRepository) RevokeByUser(ctx context.Context, userId string) error {
@@ -118,11 +99,18 @@ func (repository *TokenMongoRepository) RevokeByUser(ctx context.Context, userId
 		bson.M{"$set": bson.M{"is_revoked": true}},
 	)
 
-	if err != nil {
-		return err
-	}
+	return err
+}
 
-	return nil
+func (repository *TokenMongoRepository) RemoveExpired(ctx context.Context) error {
+	collection := repository.getTokenCollection()
+	_, err := collection.DeleteMany(ctx, bson.M{
+		"expired_at": bson.M{
+			"$lte": time.Now().UTC(),
+		},
+	})
+
+	return err
 }
 
 func (repository *TokenMongoRepository) getTokenCollection() *mongo.Collection {

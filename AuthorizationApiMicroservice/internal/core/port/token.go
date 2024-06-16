@@ -18,4 +18,5 @@ type TokenRepository interface {
 	Save(ctx context.Context, token *domain.Token) error
 	RevokeByUserDevice(ctx context.Context, userId string, deviceId string) error
 	RevokeByUser(ctx context.Context, userId string) error
+	RemoveExpired(ctx context.Context) error
 }

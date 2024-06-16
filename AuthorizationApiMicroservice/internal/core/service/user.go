@@ -125,8 +125,7 @@ func (service *UserService) VerifySignUp(ctx context.Context, dto dto.VerifyInpu
 		return domain.ErrUserAlreadyVerified
 	}
 
-	err = user.CheckVerificationCode(dto.Code)
-	if err != nil {
+	if err := user.CheckVerificationCode(dto.Code); err != nil {
 		return err
 	}
 

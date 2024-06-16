@@ -19,7 +19,8 @@ type Config struct {
 	MailHost     string
 	MailPort     uint
 
-	MongoUri string
+	MongoUri           string
+	CleanTokenInterval int
 }
 
 func NewConfig() (*Config, error) {
@@ -47,5 +48,7 @@ func NewConfig() (*Config, error) {
 	config.MailPort = uint(mailPort)
 
 	config.MongoUri = os.Getenv("MONGO_URI")
+	config.CleanTokenInterval = 60 * 60 * 24 * 31 // 1 month
+
 	return &config, nil
 }
