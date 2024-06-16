@@ -1,7 +1,7 @@
 package service
 
 import (
-	"authorization/internal/core/config"
+	core_config "authorization/internal/core/config"
 	"authorization/internal/core/domain"
 	"authorization/internal/core/dto"
 	"authorization/internal/core/port"
@@ -57,7 +57,7 @@ func (service *TokenService) IssuePair(ctx context.Context, userId string, devic
 		IsRevoked: false,
 	}
 
-	if err := service.repository.Save(ctx, token); err != nil {
+	if err := service.repository.Save(ctx, &token); err != nil {
 		return nil, domain.ErrInternal
 	}
 

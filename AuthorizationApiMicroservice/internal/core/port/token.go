@@ -15,7 +15,7 @@ type TokenService interface {
 
 type TokenRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.Token, error)
-	Save(ctx context.Context, token domain.Token) error
+	Save(ctx context.Context, token *domain.Token) error
 	RevokeByUserDevice(ctx context.Context, userId string, deviceId string) error
 	RevokeByUser(ctx context.Context, userId string) error
 }

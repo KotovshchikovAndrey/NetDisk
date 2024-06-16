@@ -2,7 +2,6 @@ package service
 
 import (
 	"authorization/internal/adapter/config"
-	core_config "authorization/internal/core/config"
 	"authorization/internal/core/domain"
 	"authorization/internal/core/dto"
 	"authorization/internal/core/port"
@@ -12,21 +11,19 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type UserService struct {
-	config       config.Config
+	config       *config.Config
 	repository   port.UserRepository
 	tokenService port.TokenService
 }
 
 func NewUserService(
-	config config.Config,
+	config *config.Config,
 	repository port.UserRepository,
 	tokenService port.TokenService,
 ) port.UserService {
@@ -128,28 +125,9 @@ func (service *UserService) VerifySignUp(ctx context.Context, dto dto.VerifyInpu
 		return domain.ErrUserAlreadyVerified
 	}
 
-	code, err := service.repository.GetCode(ctx, dto.UserID, domain.VerifySignUp)
+	err = user.CheckVerificationCode(dto.Code)
 	if err != nil {
-		if err == domain.ErrNotFound {
-			return domain.ErrInvalidCode
-		}
-
-		return domain.ErrInternal
-	}
-
-	if code.Value != dto.Code {
-		return domain.ErrInvalidCode
-	}
-
-	go func() {
-		if err = service.repository.RemoveCode(ctx, code.ID); err != nil {
-			log.Fatal(err)
-			// send to broker for retry
-		}
-	}()
-
-	if code.IsExired() {
-		return domain.ErrCodeExpired
+		return err
 	}
 
 	user.IsVerified = true
@@ -186,16 +164,8 @@ func (service *UserService) VerifySignIn(ctx context.Context, dto dto.VerifyInpu
 }
 
 func (service *UserService) sendSignUpVerificationCode(ctx context.Context, user *domain.User) error {
-	code := service.generateCode(core_config.CodeLength)
-	err := service.repository.SaveCode(ctx, &domain.Code{
-		ID:        uuid.NewString(),
-		Value:     code,
-		UserID:    user.ID,
-		CreatedAt: time.Now().UTC(),
-		ExpiredAt: time.Now().Add(time.Second * core_config.CodeTtl).UTC(),
-		Purpose:   domain.VerifySignUp,
-	})
-
+	code := user.IssueVerificationCode()
+	err := service.repository.Save(ctx, user)
 	if err != nil {
 		return err
 	}
@@ -211,19 +181,4 @@ func (service *UserService) sendSignUpVerificationCode(ctx context.Context, user
 	})
 
 	return err
-}
-
-func (service *UserService) generateCode(length uint) string {
-	var codeBuilder strings.Builder
-	first := rune(rand.Intn(10))
-	for first == '0' {
-		first = rune(rand.Intn(10))
-	}
-
-	codeBuilder.WriteRune(first)
-	for index := 0; index < int(length)-1; index++ {
-		codeBuilder.WriteString(fmt.Sprint(rand.Intn(10)))
-	}
-
-	return codeBuilder.String()
 }

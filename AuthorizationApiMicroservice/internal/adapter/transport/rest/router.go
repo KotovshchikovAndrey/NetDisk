@@ -1,18 +1,22 @@
 package rest
 
 import (
-	"net/http"
+	"authorization/internal/adapter/transport/rest/v1"
+	"authorization/internal/core/port"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter() (*gin.Engine, error) {
-	router := gin.New()
-	v1 := router.Group("/api/v1")
+func NewRouter(userService port.UserService) (*gin.Engine, error) {
+	router := gin.Default()
+	v1Router := router.Group("/api/v1")
 	{
-		v1.GET("/ping", func(ctx *gin.Context) {
-			ctx.JSON(http.StatusOK, gin.H{"message": "pong"})
-		})
+		authRouter := v1Router.Group("/auth")
+		authTransport := rest.NewAuthTransport(userService)
+		{
+			authRouter.GET("/ping", authTransport.Ping)
+			authRouter.POST("/sign-up", authTransport.SignUp)
+		}
 	}
 
 	return router, nil

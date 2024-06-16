@@ -18,6 +18,8 @@ type Config struct {
 	MailPassword string
 	MailHost     string
 	MailPort     uint
+
+	MongoUri string
 }
 
 func NewConfig() (*Config, error) {
@@ -43,5 +45,7 @@ func NewConfig() (*Config, error) {
 	}
 
 	config.MailPort = uint(mailPort)
+
+	config.MongoUri = os.Getenv("MONGO_URI")
 	return &config, nil
 }

@@ -2,7 +2,9 @@ package main
 
 import (
 	"authorization/internal/adapter/config"
+	"authorization/internal/adapter/storage/mongo"
 	"authorization/internal/adapter/transport/rest"
+	"authorization/internal/core/service"
 	"fmt"
 	"log"
 )
@@ -13,7 +15,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	router, err := rest.NewRouter()
+	tokenRepository, err := mongo.NewTokenMongoRepository(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	userRepository, err := mongo.NewUserMongoRepository(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tokenService := service.NewTokenService(tokenRepository)
+	userService := service.NewUserService(config, userRepository, tokenService)
+
+	router, err := rest.NewRouter(userService)
 	if err != nil {
 		log.Fatal(err)
 	}
