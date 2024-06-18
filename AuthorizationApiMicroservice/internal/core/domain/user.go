@@ -48,6 +48,10 @@ func (user *User) CheckVerificationCode(codeString string) error {
 	return ErrInvalidCode
 }
 
+func (user *User) Is2faEnabled() bool {
+	return true
+}
+
 func (user *User) generateCode() string {
 	var codeBuilder strings.Builder
 	first := rand.Intn(10)

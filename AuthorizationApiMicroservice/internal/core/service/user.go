@@ -34,8 +34,8 @@ func NewUserService(
 	}
 }
 
-func (service *UserService) SignUp(ctx context.Context, dto dto.SignUpInput) (*port.UserID, error) {
-	_, err := service.repository.GetByEmail(ctx, dto.Email)
+func (service *UserService) SignUp(ctx context.Context, input dto.SignUpInput) (*dto.SignUpOutput, error) {
+	_, err := service.repository.GetByEmail(ctx, input.Email)
 	if err == nil {
 		return nil, domain.ErrEmailOccupied
 	}
@@ -44,7 +44,7 @@ func (service *UserService) SignUp(ctx context.Context, dto dto.SignUpInput) (*p
 		return nil, domain.ErrInternal
 	}
 
-	hashedPassword, err := crypto.HashPassword(dto.Password)
+	hashedPassword, err := crypto.HashPassword(input.Password)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -52,8 +52,8 @@ func (service *UserService) SignUp(ctx context.Context, dto dto.SignUpInput) (*p
 	nowTime := time.Now().UTC()
 	newUser := domain.User{
 		ID:             uuid.NewString(),
-		Name:           dto.Name,
-		Email:          dto.Email,
+		Name:           input.Name,
+		Email:          input.Email,
 		Secret:         uuid.NewString(),
 		IsVerified:     false,
 		CreatedAt:      nowTime,
@@ -73,11 +73,11 @@ func (service *UserService) SignUp(ctx context.Context, dto dto.SignUpInput) (*p
 		}
 	}()
 
-	return (*port.UserID)(&newUser.ID), nil
+	return &dto.SignUpOutput{UserID: newUser.ID}, nil
 }
 
-func (service *UserService) SignIn(ctx context.Context, dto dto.SignInInput) (*port.UserID, error) {
-	user, err := service.repository.GetByEmail(ctx, dto.Email)
+func (service *UserService) SignIn(ctx context.Context, input dto.SignInInput) (*dto.SignInOutput, error) {
+	user, err := service.repository.GetByEmail(ctx, input.Email)
 	if err != nil {
 		if err == domain.ErrNotFound {
 			return nil, domain.ErrInvalidLoginOrPassword
@@ -86,15 +86,30 @@ func (service *UserService) SignIn(ctx context.Context, dto dto.SignInInput) (*p
 		return nil, domain.ErrInternal
 	}
 
-	if err := crypto.CheckPassword(dto.Password, user.HashedPassword); err != nil {
+	if err := crypto.CheckPassword(input.Password, user.HashedPassword); err != nil {
 		return nil, domain.ErrInvalidLoginOrPassword
 	}
 
-	return (*port.UserID)(&user.ID), nil
+	if !user.IsVerified {
+		return nil, domain.ErrUserUnverified
+	}
+
+	if user.Is2faEnabled() {
+		return &dto.SignInOutput{UserID: user.ID, TokenPair: nil}, nil
+	}
+
+	tokenPair, err := service.tokenService.IssuePair(ctx, user.ID, input.DeviceID)
+	if err != nil {
+		return nil, domain.ErrInternal
+	}
+
+	return &dto.SignInOutput{UserID: user.ID, TokenPair: tokenPair}, nil
 }
 
-func (service *UserService) RefreshToken(ctx context.Context, dto dto.RefreshTokenInput) (*dto.TokenPairOutput, error) {
-	tokenPair, err := service.tokenService.RefreshPair(ctx, dto.RefreshToken)
+func (service *UserService) RefreshToken(ctx context.Context, input dto.RefreshTokenInput) (*dto.TokenPairOutput, error) {
+	// TODO:
+	// Think about it
+	tokenPair, err := service.tokenService.RefreshPair(ctx, input.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +117,9 @@ func (service *UserService) RefreshToken(ctx context.Context, dto dto.RefreshTok
 	return tokenPair, nil
 }
 
-func (service *UserService) Logout(ctx context.Context, refreshToken string) error {
+func (service *UserService) SignOut(ctx context.Context, refreshToken string) error {
+	// TODO:
+	// Do I need remove session besides token?
 	err := service.tokenService.Revoke(ctx, refreshToken)
 	if err != nil {
 		return domain.ErrInternal
@@ -111,8 +128,8 @@ func (service *UserService) Logout(ctx context.Context, refreshToken string) err
 	return nil
 }
 
-func (service *UserService) VerifySignUp(ctx context.Context, dto dto.VerifyInput) error {
-	user, err := service.repository.GetByID(ctx, dto.UserID)
+func (service *UserService) VerifySignUp(ctx context.Context, input dto.VerifyInput) error {
+	user, err := service.repository.GetByID(ctx, input.UserID)
 	if err != nil {
 		if err == domain.ErrNotFound {
 			return err
@@ -125,7 +142,7 @@ func (service *UserService) VerifySignUp(ctx context.Context, dto dto.VerifyInpu
 		return domain.ErrUserAlreadyVerified
 	}
 
-	if err := user.CheckVerificationCode(dto.Code); err != nil {
+	if err := user.CheckVerificationCode(input.Code); err != nil {
 		return err
 	}
 
@@ -135,8 +152,8 @@ func (service *UserService) VerifySignUp(ctx context.Context, dto dto.VerifyInpu
 	return nil
 }
 
-func (service *UserService) VerifySignIn(ctx context.Context, dto dto.VerifyInput) (*dto.TokenPairOutput, error) {
-	user, err := service.repository.GetByID(ctx, dto.UserID)
+func (service *UserService) VerifySignIn(ctx context.Context, input dto.VerifyInput) (*dto.TokenPairOutput, error) {
+	user, err := service.repository.GetByID(ctx, input.UserID)
 	if err != nil {
 		if err == domain.ErrNotFound {
 			return nil, err
@@ -145,7 +162,11 @@ func (service *UserService) VerifySignIn(ctx context.Context, dto dto.VerifyInpu
 		return nil, domain.ErrInternal
 	}
 
-	isCodeValid, err := authenticator.ValidateCode(dto.Code, user.Secret)
+	if !user.IsVerified {
+		return nil, domain.ErrUserUnverified
+	}
+
+	isCodeValid, err := authenticator.ValidateCode(input.Code, user.Secret)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -154,7 +175,7 @@ func (service *UserService) VerifySignIn(ctx context.Context, dto dto.VerifyInpu
 		return nil, domain.ErrInvalidCode
 	}
 
-	tokenPair, err := service.tokenService.IssuePair(ctx, user.ID, dto.DeviceID)
+	tokenPair, err := service.tokenService.IssuePair(ctx, user.ID, input.DeviceID)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}

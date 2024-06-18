@@ -6,15 +6,13 @@ import (
 	"context"
 )
 
-type UserID string
-
 type UserService interface {
-	SignUp(ctx context.Context, dto dto.SignUpInput) (*UserID, error)
-	SignIn(ctx context.Context, dto dto.SignInInput) (*UserID, error)
-	RefreshToken(ctx context.Context, dto dto.RefreshTokenInput) (*dto.TokenPairOutput, error)
-	Logout(ctx context.Context, refreshToken string) error
-	VerifySignUp(ctx context.Context, dto dto.VerifyInput) error
-	VerifySignIn(ctx context.Context, dto dto.VerifyInput) (*dto.TokenPairOutput, error)
+	SignUp(ctx context.Context, input dto.SignUpInput) (*dto.SignUpOutput, error)
+	SignIn(ctx context.Context, input dto.SignInInput) (*dto.SignInOutput, error)
+	RefreshToken(ctx context.Context, input dto.RefreshTokenInput) (*dto.TokenPairOutput, error)
+	SignOut(ctx context.Context, refreshToken string) error
+	VerifySignUp(ctx context.Context, input dto.VerifyInput) error
+	VerifySignIn(ctx context.Context, input dto.VerifyInput) (*dto.TokenPairOutput, error)
 }
 
 type UserRepository interface {

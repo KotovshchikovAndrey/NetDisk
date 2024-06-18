@@ -7,10 +7,19 @@ type SignUpInput struct {
 	DeviceID string
 }
 
+type SignUpOutput struct {
+	UserID string
+}
+
 type SignInInput struct {
 	Email    string
 	Password string
 	DeviceID string
+}
+
+type SignInOutput struct {
+	UserID    string
+	TokenPair *TokenPairOutput
 }
 
 type RefreshTokenInput struct {

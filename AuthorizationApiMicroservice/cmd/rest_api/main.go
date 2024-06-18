@@ -32,8 +32,9 @@ func main() {
 
 	tokenService := service.NewTokenService(tokenRepository)
 	userService := service.NewUserService(config, userRepository, tokenService)
+	sessionService := service.NewSessionService(nil)
 
-	router, err := rest.NewRouter(userService)
+	router, err := rest.NewRouter(userService, sessionService)
 	if err != nil {
 		log.Fatal(err)
 	}
