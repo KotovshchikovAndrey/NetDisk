@@ -12,9 +12,6 @@ var (
 	ErrExpiredToken = errors.New("token expired")
 )
 
-const publicKey = ""
-const privateKey = ""
-
 type Payload struct {
 	Jti     string
 	Subject string
@@ -22,7 +19,7 @@ type Payload struct {
 	Exp     int64
 }
 
-func GenerateJwt(payload Payload) (string, error) {
+func GenerateRS256Jwt(payload Payload, privateKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
 		"jti":     payload.Jti,
 		"subject": payload.Subject,
@@ -30,7 +27,12 @@ func GenerateJwt(payload Payload) (string, error) {
 		"exp":     payload.Exp,
 	})
 
-	tokenString, err := token.SignedString(privateKey)
+	key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privateKey))
+	if err != nil {
+		return "", err
+	}
+
+	tokenString, err := token.SignedString(key)
 	if err != nil {
 		return "", nil
 	}
@@ -38,9 +40,14 @@ func GenerateJwt(payload Payload) (string, error) {
 	return tokenString, nil
 }
 
-func TryDecodeJwt(tokenString string) (*Payload, error) {
+func ValidateRS256Jwt(tokenString string, publicKey string) (*Payload, error) {
+	key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(publicKey))
+	if err != nil {
+		return nil, err
+	}
+
 	token, err := jwt.ParseWithClaims(tokenString, jwt.MapClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return publicKey, nil
+		return key, nil
 	})
 
 	if err != nil {
@@ -53,7 +60,7 @@ func TryDecodeJwt(tokenString string) (*Payload, error) {
 	}
 
 	exp := payload["exp"].(int64)
-	if exp < time.Now().UTC().Unix() {
+	if exp <= time.Now().Unix() {
 		return nil, ErrExpiredToken
 	}
 

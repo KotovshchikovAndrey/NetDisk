@@ -15,5 +15,6 @@ var (
 	ErrUserAlreadyVerified    = errors.New("user already verified")
 	ErrInvalidToken           = errors.New("invalid token")
 	ErrTokenExpired           = errors.New("token expired")
-	ErrSessionExpired         = errors.New("session exired")
+	ErrSessionExpired         = errors.New("session expired")
+	ErrMissingDeviceId        = errors.New("device id missing")
 )

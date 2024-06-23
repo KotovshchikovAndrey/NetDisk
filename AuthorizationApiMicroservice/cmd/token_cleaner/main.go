@@ -5,6 +5,7 @@ import (
 	"authorization/internal/adapter/storage/mongo"
 	"authorization/internal/core/port"
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +22,10 @@ func cleanExpiredTokens(repository port.TokenRepository) {
 }
 
 func main() {
-	config, err := config.NewConfig()
+	envFile := flag.String("env-file", ".env", "Path to the .env file")
+	flag.Parse()
+
+	config, err := config.NewConfig(*envFile)
 	if err != nil {
 		log.Fatal(err)
 	}

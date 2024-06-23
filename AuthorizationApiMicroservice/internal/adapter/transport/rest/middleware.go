@@ -1,40 +1,17 @@
 package rest
 
 import (
-	core_config "authorization/internal/core/config"
-	"authorization/internal/core/port"
-	"errors"
+	"authorization/internal/core/domain"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func sessionMiddleware(service port.SessionService) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		// TODO:
-		// If err exists then...?
-		ctx.Next()
-
-		userId, ok := ctx.Value("userID").(string)
-		if !ok {
-			return
-		}
-
-		newSession, err := service.Create(ctx, userId)
-		if err != nil {
-			catchError(ctx, err)
-			return
-		}
-
-		ctx.SetCookie("session_key", newSession.Key, core_config.SessionTtl, "", "", false, true)
-	}
-}
-
 func deviceIdRequiredMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		_, err := ctx.Cookie("device_id")
 		if err != nil {
-			ctx.Error(errors.New("device id required"))
+			catchError(ctx, domain.ErrMissingDeviceId)
 			return
 		}
 
@@ -45,21 +22,19 @@ func deviceIdRequiredMiddleware() gin.HandlerFunc {
 func errorHandlerMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Next()
-		for _, err := range ctx.Errors {
-			switch e := err.Err.(type) {
+		lastError := ctx.Errors.Last()
+		if lastError == nil {
+			return
+		}
 
-			case ErrorResponse:
-				ctx.AbortWithStatusJSON(e.HttpStatusCode, e)
+		switch err := lastError.Err.(type) {
 
-			default:
-				internalServerError := newErrorResponse(
-					INTERNAL_SERVER_ERROR_CODE,
-					err.Error(),
-					http.StatusInternalServerError,
-				)
+		case ErrorResponse:
+			ctx.JSON(-1, err)
 
-				ctx.AbortWithStatusJSON(http.StatusInternalServerError, internalServerError)
-			}
+		default:
+			internalServerError := newErrorResponse(INTERNAL_SERVER_ERROR_CODE, "", http.StatusInternalServerError)
+			ctx.JSON(http.StatusInternalServerError, internalServerError)
 		}
 	}
 }

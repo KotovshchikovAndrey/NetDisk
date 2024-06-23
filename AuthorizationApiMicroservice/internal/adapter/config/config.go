@@ -21,10 +21,13 @@ type Config struct {
 
 	MongoUri           string
 	CleanTokenInterval int
+
+	RedisAddr     string
+	RedisPassword string
 }
 
-func NewConfig() (*Config, error) {
-	err := godotenv.Load()
+func NewConfig(envPath string) (*Config, error) {
+	err := godotenv.Load(envPath)
 	if err != nil {
 		return nil, err
 	}
@@ -33,8 +36,21 @@ func NewConfig() (*Config, error) {
 	config.ServerHost = "127.0.0.1"
 	config.ServerPort = 5000
 
-	config.JwtPublicKey = os.Getenv("JWT_PUBLIC_KEY")
-	config.JwtPrivateKey = os.Getenv("JWT_PRIVATE_KEY")
+	privateKeyPath := os.Getenv("JWT_PRIVATE_KEY_PATH")
+	publicKeyPath := os.Getenv("JWT_PUBLIC_KEY_PATH")
+
+	privateKey, err := os.ReadFile(privateKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKey, err := os.ReadFile(publicKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	config.JwtPrivateKey = string(privateKey)
+	config.JwtPublicKey = string(publicKey)
 
 	config.MailFrom = os.Getenv("MAIL_FROM")
 	config.MailPassword = os.Getenv("MAIL_PASSWORD")
@@ -49,6 +65,9 @@ func NewConfig() (*Config, error) {
 
 	config.MongoUri = os.Getenv("MONGO_URI")
 	config.CleanTokenInterval = 60 * 60 * 24 * 31 // 1 month
+
+	config.RedisAddr = os.Getenv("REDIS_ADDR")
+	config.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
 	return &config, nil
 }

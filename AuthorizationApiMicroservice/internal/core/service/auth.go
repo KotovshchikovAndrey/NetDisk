@@ -16,25 +16,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserService struct {
+type AuthService struct {
 	config       *config.Config
 	repository   port.UserRepository
 	tokenService port.TokenService
 }
 
-func NewUserService(
+func NewAuthService(
 	config *config.Config,
 	repository port.UserRepository,
 	tokenService port.TokenService,
-) port.UserService {
-	return &UserService{
+) port.AuthService {
+	return &AuthService{
 		config:       config,
 		repository:   repository,
 		tokenService: tokenService,
 	}
 }
 
-func (service *UserService) SignUp(ctx context.Context, input dto.SignUpInput) (*dto.SignUpOutput, error) {
+func (service *AuthService) SignUp(ctx context.Context, input dto.SignUpInput) (*dto.SignUpOutput, error) {
 	_, err := service.repository.GetByEmail(ctx, input.Email)
 	if err == nil {
 		return nil, domain.ErrEmailOccupied
@@ -66,6 +66,8 @@ func (service *UserService) SignUp(ctx context.Context, input dto.SignUpInput) (
 		return nil, domain.ErrInternal
 	}
 
+	// TODO:
+	// How about create util / helper from this code?
 	go func() {
 		if err = service.sendSignUpVerificationCode(ctx, &newUser); err != nil {
 			log.Fatal(err)
@@ -76,7 +78,7 @@ func (service *UserService) SignUp(ctx context.Context, input dto.SignUpInput) (
 	return &dto.SignUpOutput{UserID: newUser.ID}, nil
 }
 
-func (service *UserService) SignIn(ctx context.Context, input dto.SignInInput) (*dto.SignInOutput, error) {
+func (service *AuthService) SignIn(ctx context.Context, input dto.SignInInput) (*dto.SignInOutput, error) {
 	user, err := service.repository.GetByEmail(ctx, input.Email)
 	if err != nil {
 		if err == domain.ErrNotFound {
@@ -88,10 +90,6 @@ func (service *UserService) SignIn(ctx context.Context, input dto.SignInInput) (
 
 	if err := crypto.CheckPassword(input.Password, user.HashedPassword); err != nil {
 		return nil, domain.ErrInvalidLoginOrPassword
-	}
-
-	if !user.IsVerified {
-		return nil, domain.ErrUserUnverified
 	}
 
 	if user.Is2faEnabled() {
@@ -106,9 +104,7 @@ func (service *UserService) SignIn(ctx context.Context, input dto.SignInInput) (
 	return &dto.SignInOutput{UserID: user.ID, TokenPair: tokenPair}, nil
 }
 
-func (service *UserService) RefreshToken(ctx context.Context, input dto.RefreshTokenInput) (*dto.TokenPairOutput, error) {
-	// TODO:
-	// Think about it
+func (service *AuthService) RefreshToken(ctx context.Context, input dto.RefreshTokenInput) (*dto.TokenPairOutput, error) {
 	tokenPair, err := service.tokenService.RefreshPair(ctx, input.RefreshToken)
 	if err != nil {
 		return nil, err
@@ -117,18 +113,15 @@ func (service *UserService) RefreshToken(ctx context.Context, input dto.RefreshT
 	return tokenPair, nil
 }
 
-func (service *UserService) SignOut(ctx context.Context, refreshToken string) error {
-	// TODO:
-	// Do I need remove session besides token?
+func (service *AuthService) SignOut(ctx context.Context, refreshToken string) {
 	err := service.tokenService.Revoke(ctx, refreshToken)
 	if err != nil {
-		return domain.ErrInternal
+		log.Fatal(err)
+		// send to broker for retry
 	}
-
-	return nil
 }
 
-func (service *UserService) VerifySignUp(ctx context.Context, input dto.VerifyInput) error {
+func (service *AuthService) VerifySignUp(ctx context.Context, input dto.VerifyInput) error {
 	user, err := service.repository.GetByID(ctx, input.UserID)
 	if err != nil {
 		if err == domain.ErrNotFound {
@@ -152,7 +145,25 @@ func (service *UserService) VerifySignUp(ctx context.Context, input dto.VerifyIn
 	return nil
 }
 
-func (service *UserService) VerifySignIn(ctx context.Context, input dto.VerifyInput) (*dto.TokenPairOutput, error) {
+func (service *AuthService) ResendVerificationCode(ctx context.Context, userId string) error {
+	user, err := service.repository.GetByID(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	// TODO:
+	// How about create util / helper from this code?
+	go func() {
+		if err = service.sendSignUpVerificationCode(ctx, user); err != nil {
+			log.Fatal(err)
+			// send to broker for retry
+		}
+	}()
+
+	return nil
+}
+
+func (service *AuthService) VerifySignIn(ctx context.Context, input dto.VerifyInput) (*dto.TokenPairOutput, error) {
 	user, err := service.repository.GetByID(ctx, input.UserID)
 	if err != nil {
 		if err == domain.ErrNotFound {
@@ -183,8 +194,8 @@ func (service *UserService) VerifySignIn(ctx context.Context, input dto.VerifyIn
 	return tokenPair, nil
 }
 
-func (service *UserService) sendSignUpVerificationCode(ctx context.Context, user *domain.User) error {
-	code := user.IssueVerificationCode()
+func (service *AuthService) sendSignUpVerificationCode(ctx context.Context, user *domain.User) error {
+	code := user.IssueCode(domain.VerifySignUp)
 	err := service.repository.Save(ctx, user)
 	if err != nil {
 		return err

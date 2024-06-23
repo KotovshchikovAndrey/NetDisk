@@ -5,6 +5,7 @@ import (
 	"authorization/internal/core/domain"
 	"authorization/internal/core/port"
 	"context"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,7 +23,7 @@ func (service *SessionService) Get(ctx context.Context, key string) (*domain.Ses
 	session, err := service.storage.GetByKey(ctx, key)
 	if err != nil {
 		if err == domain.ErrNotFound {
-			return nil, err
+			return nil, domain.ErrSessionExpired
 		}
 
 		return nil, domain.ErrInternal
@@ -39,7 +40,7 @@ func (service *SessionService) Create(ctx context.Context, userId string) (*doma
 	newSession := &domain.Session{
 		Key:       uuid.NewString(),
 		UserID:    userId,
-		ExpiredAt: time.Now().Add(core_config.SessionTtl * time.Second).Unix(),
+		ExpiredAt: time.Now().Add(core_config.SessionTtl * time.Second),
 	}
 
 	if err := service.storage.Save(ctx, newSession); err != nil {
@@ -49,10 +50,9 @@ func (service *SessionService) Create(ctx context.Context, userId string) (*doma
 	return newSession, nil
 }
 
-func (service *SessionService) Delete(ctx context.Context, key string) error {
+func (service *SessionService) Delete(ctx context.Context, key string) {
 	if err := service.storage.DeleteByKey(ctx, key); err != nil {
-		return domain.ErrInternal
+		log.Fatal(err)
+		// send to broker for retry
 	}
-
-	return nil
 }

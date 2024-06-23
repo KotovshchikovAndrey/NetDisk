@@ -1,6 +1,7 @@
 package service
 
 import (
+	"authorization/internal/adapter/config"
 	core_config "authorization/internal/core/config"
 	"authorization/internal/core/domain"
 	"authorization/internal/core/dto"
@@ -13,22 +14,23 @@ import (
 )
 
 type TokenService struct {
+	config     *config.Config
 	repository port.TokenRepository
 }
 
-func NewTokenService(repository port.TokenRepository) port.TokenService {
-	return &TokenService{repository: repository}
+func NewTokenService(config *config.Config, repository port.TokenRepository) port.TokenService {
+	return &TokenService{config: config, repository: repository}
 }
 
 func (service *TokenService) IssuePair(ctx context.Context, userId string, deviceId string) (*dto.TokenPairOutput, error) {
 	accessTokenPayload := jwt.Payload{
 		Jti:     uuid.NewString(),
 		Subject: userId,
-		Iat:     time.Now().UTC().Unix(),
-		Exp:     time.Now().UTC().Add(time.Second * core_config.AccessTokenTtl).Unix(),
+		Iat:     time.Now().Unix(),
+		Exp:     time.Now().Add(time.Second * core_config.AccessTokenTtl).Unix(),
 	}
 
-	accessToken, err := jwt.GenerateJwt(accessTokenPayload)
+	accessToken, err := jwt.GenerateRS256Jwt(accessTokenPayload, service.config.JwtPrivateKey)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -43,7 +45,7 @@ func (service *TokenService) IssuePair(ctx context.Context, userId string, devic
 		Exp:     expiredAt.Unix(),
 	}
 
-	refreshToken, err := jwt.GenerateJwt(refreshTokenPayload)
+	refreshToken, err := jwt.GenerateRS256Jwt(refreshTokenPayload, service.config.JwtPrivateKey)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -65,7 +67,7 @@ func (service *TokenService) IssuePair(ctx context.Context, userId string, devic
 }
 
 func (service *TokenService) RefreshPair(ctx context.Context, refreshToken string) (*dto.TokenPairOutput, error) {
-	payload, err := jwt.TryDecodeJwt(refreshToken)
+	payload, err := jwt.ValidateRS256Jwt(refreshToken, service.config.JwtPublicKey)
 	if err != nil {
 		switch err {
 
@@ -110,7 +112,7 @@ func (service *TokenService) RefreshPair(ctx context.Context, refreshToken strin
 }
 
 func (service *TokenService) Revoke(ctx context.Context, refreshToken string) error {
-	payload, err := jwt.TryDecodeJwt(refreshToken)
+	payload, err := jwt.ValidateRS256Jwt(refreshToken, service.config.JwtPublicKey)
 	if err == jwt.ErrInvalidToken {
 		return nil // do nothing
 	}

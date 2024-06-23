@@ -8,7 +8,7 @@ import (
 type SessionService interface {
 	Get(ctx context.Context, key string) (*domain.Session, error)
 	Create(ctx context.Context, userId string) (*domain.Session, error)
-	Delete(ctx context.Context, key string) error
+	Delete(ctx context.Context, key string)
 }
 
 type SessionStorage interface {

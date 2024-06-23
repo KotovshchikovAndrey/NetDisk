@@ -20,27 +20,34 @@ type User struct {
 	Codes          []*Code
 }
 
-func (user *User) IssueVerificationCode() string {
-	code := user.generateCode()
-	user.Codes = append(user.Codes, &Code{
-		Value:     code,
+func (user *User) IssueCode(purpose CodePurpose) string {
+	newCode := &Code{
+		Value:     user.generateCode(),
 		CreatedAt: time.Now().UTC(),
 		ExpiredAt: time.Now().Add(time.Second * core_config.CodeTtl).UTC(),
-		Purpose:   VerifySignUp,
-	})
+		Purpose:   purpose,
+	}
 
-	return code
+	for index, issuedCode := range user.Codes {
+		if issuedCode.Purpose == purpose {
+			user.Codes[index] = newCode
+			return newCode.Value
+		}
+	}
+
+	user.Codes = append(user.Codes, newCode)
+	return newCode.Value
 }
 
 func (user *User) CheckVerificationCode(codeString string) error {
 	for index, code := range user.Codes {
 		if (code.Value == codeString) && (code.Purpose == VerifySignUp) {
 			if !code.IsExired() {
+				user.Codes[index] = user.Codes[len(user.Codes)-1]
+				user.Codes = user.Codes[:len(user.Codes)-1]
 				return nil
 			}
 
-			// remove expired code
-			user.Codes = append(user.Codes[:index], user.Codes[index+1:]...)
 			return ErrCodeExpired
 		}
 	}
@@ -49,7 +56,7 @@ func (user *User) CheckVerificationCode(codeString string) error {
 }
 
 func (user *User) Is2faEnabled() bool {
-	return true
+	return false
 }
 
 func (user *User) generateCode() string {
