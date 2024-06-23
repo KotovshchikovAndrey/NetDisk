@@ -42,13 +42,14 @@ func (user *User) IssueCode(purpose CodePurpose) string {
 func (user *User) CheckVerificationCode(codeString string) error {
 	for index, code := range user.Codes {
 		if (code.Value == codeString) && (code.Purpose == VerifySignUp) {
-			if !code.IsExired() {
-				user.Codes[index] = user.Codes[len(user.Codes)-1]
-				user.Codes = user.Codes[:len(user.Codes)-1]
-				return nil
+			if code.IsExired() {
+				return ErrCodeExpired
+
 			}
 
-			return ErrCodeExpired
+			user.Codes[index] = user.Codes[len(user.Codes)-1]
+			user.Codes = user.Codes[:len(user.Codes)-1]
+			return nil
 		}
 	}
 

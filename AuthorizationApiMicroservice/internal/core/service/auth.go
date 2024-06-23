@@ -41,12 +41,12 @@ func (service *AuthService) SignUp(ctx context.Context, input dto.SignUpInput) (
 	}
 
 	if err != domain.ErrNotFound {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	hashedPassword, err := crypto.HashPassword(input.Password)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	nowTime := time.Now().UTC()
@@ -63,7 +63,7 @@ func (service *AuthService) SignUp(ctx context.Context, input dto.SignUpInput) (
 
 	err = service.repository.Save(ctx, &newUser)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	// TODO:
@@ -85,7 +85,7 @@ func (service *AuthService) SignIn(ctx context.Context, input dto.SignInInput) (
 			return nil, domain.ErrInvalidLoginOrPassword
 		}
 
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	if err := crypto.CheckPassword(input.Password, user.HashedPassword); err != nil {
@@ -98,7 +98,7 @@ func (service *AuthService) SignIn(ctx context.Context, input dto.SignInInput) (
 
 	tokenPair, err := service.tokenService.IssuePair(ctx, user.ID, input.DeviceID)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return &dto.SignInOutput{UserID: user.ID, TokenPair: tokenPair}, nil
@@ -124,11 +124,7 @@ func (service *AuthService) SignOut(ctx context.Context, refreshToken string) {
 func (service *AuthService) VerifySignUp(ctx context.Context, input dto.VerifyInput) error {
 	user, err := service.repository.GetByID(ctx, input.UserID)
 	if err != nil {
-		if err == domain.ErrNotFound {
-			return err
-		}
-
-		return domain.ErrInternal
+		return err
 	}
 
 	if user.IsVerified {
@@ -151,6 +147,10 @@ func (service *AuthService) ResendVerificationCode(ctx context.Context, userId s
 		return err
 	}
 
+	if user.IsVerified {
+		return domain.ErrUserAlreadyVerified
+	}
+
 	// TODO:
 	// How about create util / helper from this code?
 	go func() {
@@ -166,11 +166,7 @@ func (service *AuthService) ResendVerificationCode(ctx context.Context, userId s
 func (service *AuthService) VerifySignIn(ctx context.Context, input dto.VerifyInput) (*dto.TokenPairOutput, error) {
 	user, err := service.repository.GetByID(ctx, input.UserID)
 	if err != nil {
-		if err == domain.ErrNotFound {
-			return nil, err
-		}
-
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	if !user.IsVerified {
@@ -179,7 +175,7 @@ func (service *AuthService) VerifySignIn(ctx context.Context, input dto.VerifyIn
 
 	isCodeValid, err := authenticator.ValidateCode(input.Code, user.Secret)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	if !isCodeValid {
@@ -188,7 +184,7 @@ func (service *AuthService) VerifySignIn(ctx context.Context, input dto.VerifyIn
 
 	tokenPair, err := service.tokenService.IssuePair(ctx, user.ID, input.DeviceID)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return tokenPair, nil

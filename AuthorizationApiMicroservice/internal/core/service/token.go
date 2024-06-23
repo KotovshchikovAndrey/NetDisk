@@ -32,7 +32,7 @@ func (service *TokenService) IssuePair(ctx context.Context, userId string, devic
 
 	accessToken, err := jwt.GenerateRS256Jwt(accessTokenPayload, service.config.JwtPrivateKey)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	createdAt := time.Now().UTC()
@@ -47,7 +47,7 @@ func (service *TokenService) IssuePair(ctx context.Context, userId string, devic
 
 	refreshToken, err := jwt.GenerateRS256Jwt(refreshTokenPayload, service.config.JwtPrivateKey)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	token := domain.Token{
@@ -60,7 +60,7 @@ func (service *TokenService) IssuePair(ctx context.Context, userId string, devic
 	}
 
 	if err := service.repository.Save(ctx, &token); err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return &dto.TokenPairOutput{Accesstoken: accessToken, Refreshtoken: refreshToken}, nil
@@ -78,7 +78,7 @@ func (service *TokenService) RefreshPair(ctx context.Context, refreshToken strin
 			return nil, domain.ErrTokenExpired
 
 		default:
-			return nil, domain.ErrInternal
+			return nil, err
 		}
 	}
 
@@ -88,24 +88,24 @@ func (service *TokenService) RefreshPair(ctx context.Context, refreshToken strin
 			return nil, domain.ErrInvalidToken
 		}
 
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	if token.IsRevoked {
 		if err := service.RevokeAll(ctx, token.UserID); err != nil {
-			return nil, domain.ErrInternal
+			return nil, err
 		}
 
 		return nil, domain.ErrInvalidToken
 	}
 
 	if err := service.repository.RevokeByUserDevice(ctx, token.UserID, token.DeviceID); err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	newTokenPair, err := service.IssuePair(ctx, token.UserID, token.DeviceID)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return newTokenPair, nil

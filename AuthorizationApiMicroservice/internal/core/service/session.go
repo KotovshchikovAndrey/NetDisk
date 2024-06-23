@@ -26,7 +26,7 @@ func (service *SessionService) Get(ctx context.Context, key string) (*domain.Ses
 			return nil, domain.ErrSessionExpired
 		}
 
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	if session.IsExired() {
@@ -44,7 +44,7 @@ func (service *SessionService) Create(ctx context.Context, userId string) (*doma
 	}
 
 	if err := service.storage.Save(ctx, newSession); err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return newSession, nil

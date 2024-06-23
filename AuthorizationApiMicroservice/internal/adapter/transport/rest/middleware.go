@@ -2,7 +2,6 @@ package rest
 
 import (
 	"authorization/internal/core/domain"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,19 +21,12 @@ func deviceIdRequiredMiddleware() gin.HandlerFunc {
 func errorHandlerMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Next()
-		lastError := ctx.Errors.Last()
-		if lastError == nil {
+		err := ctx.Errors.Last()
+		if err == nil {
 			return
 		}
 
-		switch err := lastError.Err.(type) {
-
-		case ErrorResponse:
-			ctx.JSON(-1, err)
-
-		default:
-			internalServerError := newErrorResponse(INTERNAL_SERVER_ERROR_CODE, "", http.StatusInternalServerError)
-			ctx.JSON(http.StatusInternalServerError, internalServerError)
-		}
+		response := getErrorResponse(err.Err)
+		ctx.AbortWithStatusJSON(response.HttpStatusCode, response)
 	}
 }

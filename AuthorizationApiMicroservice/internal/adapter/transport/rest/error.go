@@ -48,6 +48,12 @@ func validationError(ctx *gin.Context, err error) {
 }
 
 func catchError(ctx *gin.Context, err error) {
+	// log error
+	ctx.Error(err)
+	ctx.Abort()
+}
+
+func getErrorResponse(err error) *ErrorResponse {
 	var errorResponse *ErrorResponse
 	switch err {
 
@@ -143,5 +149,5 @@ func catchError(ctx *gin.Context, err error) {
 		)
 	}
 
-	ctx.AbortWithStatusJSON(errorResponse.HttpStatusCode, errorResponse)
+	return errorResponse
 }
