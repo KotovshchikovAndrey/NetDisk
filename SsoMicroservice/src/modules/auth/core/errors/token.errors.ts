@@ -1,4 +1,4 @@
-import { BaseError } from "@libs/ddd"
+import { BaseError } from "@modules/common/errors"
 
 export class InvalidTokenError extends BaseError {
   private static readonly code = "ERR_INVALID_TOKEN"

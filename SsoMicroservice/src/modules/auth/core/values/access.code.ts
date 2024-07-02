@@ -1,4 +1,4 @@
-import { ValueObject } from "@libs/ddd"
+import { ValueObject } from "@libs/ddd/value"
 
 export type IAccessCodeProps = {
   code: string

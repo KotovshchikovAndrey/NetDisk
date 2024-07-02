@@ -1,9 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { IUserRepository } from "../ports/user.repository"
-import {
-  TOKEN_REPOSITORY_PROVIDER,
-  USER_REPOSITORY_PROVIDER,
-} from "../configs/settings"
+import { USER_REPOSITORY_PROVIDER } from "../configs/settings"
 import {
   RefreshTokenInput,
   SignInInput,
@@ -25,7 +22,7 @@ import {
   UserNotFoundError,
   UserUnverifiedError,
 } from "../errors/user.errors"
-import { UnauthorizedError } from "@libs/ddd"
+import { UnauthorizedError } from "@modules/common/errors"
 
 @Injectable()
 export class AuthService {

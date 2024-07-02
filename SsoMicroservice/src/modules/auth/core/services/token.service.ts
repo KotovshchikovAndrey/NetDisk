@@ -16,7 +16,7 @@ import { randomUUID } from "crypto"
 import { getCurrentTimestamp } from "@libs/datetime"
 import { Token } from "../entities/token"
 import { TOKEN_REPOSITORY_PROVIDER } from "../configs/settings"
-import { PermissionDeniedError } from "@libs/ddd"
+import { PermissionDeniedError } from "@modules/common/errors"
 
 @Injectable()
 export class TokenService {

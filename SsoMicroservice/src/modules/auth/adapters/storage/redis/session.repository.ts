@@ -22,13 +22,11 @@ export class SessionRedisRepository implements ISessionRepository {
     const data = JSON.stringify({
       id: session.id,
       userId: session.userId,
+      createdAt: session.createdAt,
       expiredAt: session.expiredAt,
     })
 
-    const exp =
-      session.expiredAt.getUTCMilliseconds() / 1000 - getCurrentTimestamp()
-
-    this.redis.setex(session.id, exp, data)
+    this.redis.setex(session.id, session.getTtl(), data)
   }
 
   async deleteById(id: string) {

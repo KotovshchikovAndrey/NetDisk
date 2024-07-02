@@ -1,34 +1,3 @@
-import { randomUUID } from "crypto"
-
-export abstract class Entity<T> {
-  protected readonly _id: string
-  protected readonly data: T
-
-  constructor(data: T, id?: string) {
-    this._id = id ?? randomUUID()
-    this.data = data
-  }
-
-  get id() {
-    return this._id
-  }
-}
-
-export abstract class ValueObject<T> {
-  protected readonly _value: T
-
-  constructor(value: T) {
-    this.validate(value)
-    this._value = value
-  }
-
-  get value(): Readonly<T> {
-    return this._value
-  }
-
-  protected abstract validate(value: T): void
-}
-
 export abstract class BaseError extends Error {
   readonly code: string
   readonly message: string
@@ -48,14 +17,6 @@ export class PermissionDeniedError extends BaseError {
   }
 }
 
-export class BadRequestError extends BaseError {
-  private static readonly code = "ERR_BAD_REQUEST"
-
-  constructor(message: string) {
-    super(BadRequestError.code, message)
-  }
-}
-
 export class ValidationError extends BaseError {
   private static readonly code = "ERR_VALIDATION_ERROR"
 
@@ -69,5 +30,13 @@ export class UnauthorizedError extends BaseError {
 
   constructor(message: string = "Unauthorized") {
     super(UnauthorizedError.code, message)
+  }
+}
+
+export class InternalError extends BaseError {
+  private static readonly code = "ERR_INTERNAL"
+
+  constructor(message: string = "Internal server error") {
+    super(InternalError.code, message)
   }
 }

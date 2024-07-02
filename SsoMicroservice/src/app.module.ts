@@ -1,6 +1,5 @@
+import { AuthModule } from "@modules/auth/auth.module"
 import { Module } from "@nestjs/common"
-import { ApiModule } from "./apps/api/api.module"
-import { CleanerModule } from "./apps/cleaner/cleaner.module"
 import { ConfigModule, ConfigService } from "@nestjs/config"
 import { MongooseModule } from "@nestjs/mongoose"
 
@@ -36,8 +35,7 @@ import { MongooseModule } from "@nestjs/mongoose"
       connectionName: "tokens",
     }),
 
-    ApiModule,
-    CleanerModule,
+    AuthModule,
   ],
   controllers: [],
 })

@@ -1,4 +1,4 @@
-import { Entity } from "@libs/ddd"
+import { Entity } from "@libs/ddd/entity"
 import { IJwtPayload } from "@libs/jwt"
 
 type ITokenData = {

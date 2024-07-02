@@ -14,6 +14,7 @@ export class SessionOutput {
   constructor(
     readonly id: string,
     readonly userId: string,
+    readonly createdAt: Date,
     readonly expiredAt: Date,
   ) {}
 }

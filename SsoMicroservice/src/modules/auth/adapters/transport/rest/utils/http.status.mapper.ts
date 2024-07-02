@@ -1,4 +1,3 @@
-import { PermissionDeniedError, ValidationError } from "@libs/ddd"
 import {
   InvalidTokenError,
   TokenExpiredError,
@@ -13,6 +12,11 @@ import {
   UserAlreadyVerifiedError,
   UserNotFoundError,
 } from "@modules/auth/core/errors/user.errors"
+import {
+  PermissionDeniedError,
+  UnauthorizedError,
+  ValidationError,
+} from "@modules/common/errors"
 import { HttpStatus } from "@nestjs/common"
 
 export class HttpStatusMapper {
@@ -21,6 +25,7 @@ export class HttpStatusMapper {
       case ValidationError:
         return HttpStatus.BAD_REQUEST
 
+      case UnauthorizedError:
       case TokenExpiredError:
       case InvalidLoginOrPasswordError:
         return HttpStatus.UNAUTHORIZED

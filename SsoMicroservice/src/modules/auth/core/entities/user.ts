@@ -1,4 +1,3 @@
-import { Entity } from "@libs/ddd"
 import { AccessCode, AccessCodeObjective } from "../values/access.code"
 import { addTimeToDate, getUtcNowDate } from "@libs/datetime"
 import {
@@ -8,6 +7,7 @@ import {
 import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
 import { Email } from "../values/email"
+import { Entity } from "@libs/ddd/entity"
 
 type IUserData = {
   name: string

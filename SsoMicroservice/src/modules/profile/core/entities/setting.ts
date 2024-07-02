@@ -1,4 +1,5 @@
-import { Entity, ValidationError } from "@libs/ddd"
+import { Entity } from "@libs/ddd/entity"
+import { ValidationError } from "@modules/common/errors"
 
 export type ISingleSettingData = {
   allowedOptions: Set<string>

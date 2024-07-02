@@ -1,15 +1,18 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Header,
   Post,
   Put,
   Query,
   Res,
   UseGuards,
+  ValidationPipe,
 } from "@nestjs/common"
-import { SignInDto, SignUpDto } from "./auth.dto"
+import { SignInDto, SignUpDto, VerifyDto } from "./auth.dto"
 import { AuthService } from "@modules/auth/core/services/auth.service"
 import { Response } from "@libs/response"
 import { Response as NestResponse } from "express"
@@ -35,14 +38,19 @@ export class AuthRestController {
   @UseGuards(AuthGuard)
   @Get("verify")
   async verifyUser(
-    @Query("code") code: string,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+      }),
+    )
+    dto: VerifyDto,
     @User() currentUser: CurrentUser,
     @DeviceId() deviceId: string,
   ) {
     await this.authService.verifyUser({
-      code,
       deviceId,
       userId: currentUser.id,
+      code: dto.code,
     })
 
     return new Response("User verified successfully", null)
@@ -85,14 +93,19 @@ export class AuthRestController {
   @UseGuards(SessionGuard)
   @Get("sign-in/2fa")
   async verify2faCode(
-    @Query("code") code: string,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+      }),
+    )
+    dto: VerifyDto,
     @Session() session: SessionOutput,
     @DeviceId() deviceId: string,
     @Res({ passthrough: true }) response: NestResponse,
   ) {
     const output = await this.authService.verify2faCode({
-      code,
       deviceId,
+      code: dto.code,
       userId: session.userId,
     })
 
@@ -133,7 +146,7 @@ export class AuthRestController {
   ) {
     await Promise.all([
       refreshToken && this.authService.signOut(refreshToken),
-      session.id && this.sessionService.invalidate(session.id),
+      session && this.sessionService.invalidate(session.id),
     ])
 
     response.clearCookie("refresh_token")

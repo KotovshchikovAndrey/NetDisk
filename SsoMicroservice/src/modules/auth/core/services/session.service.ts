@@ -17,7 +17,12 @@ export class SessionService {
       throw new Error("Session expired")
     }
 
-    return new SessionOutput(session.id, session.userId, session.expiredAt)
+    return new SessionOutput(
+      session.id,
+      session.userId,
+      session.createdAt,
+      session.expiredAt,
+    )
   }
 
   async createForUser(userId: string) {
@@ -27,6 +32,7 @@ export class SessionService {
     return new SessionOutput(
       newSession.id,
       newSession.userId,
+      newSession.createdAt,
       newSession.expiredAt,
     )
   }

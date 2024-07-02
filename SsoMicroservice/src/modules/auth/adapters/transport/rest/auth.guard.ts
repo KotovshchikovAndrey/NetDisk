@@ -1,11 +1,15 @@
-import {
-  BadRequestError,
-  PermissionDeniedError,
-  UnauthorizedError,
-} from "@libs/ddd"
 import { AuthService } from "@modules/auth/core/services/auth.service"
 import { SessionService } from "@modules/auth/core/services/session.service"
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common"
+import {
+  PermissionDeniedError,
+  UnauthorizedError,
+} from "@modules/common/errors"
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+} from "@nestjs/common"
 
 @Injectable()
 export class DeviceGuard implements CanActivate {
@@ -13,7 +17,7 @@ export class DeviceGuard implements CanActivate {
     const request = context.switchToHttp().getRequest()
     const deviceId = request.cookies["device_id"]
     if (!deviceId) {
-      throw new BadRequestError("Device id missing")
+      throw new BadRequestException("Device id missing")
     }
 
     request.device = deviceId
@@ -55,11 +59,11 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest()
     const authorization: string = request.headers["authorization"]
-    if (!authorization || authorization.trim() === "") {
+    if (!authorization || !authorization.trim()) {
       throw new UnauthorizedError()
     }
 
-    const accessToken = authorization.split(" ")[-1]
+    const accessToken = authorization.split(" ")[1]
     const currentUser = await this.authService.authenticate(accessToken)
 
     request.user = currentUser

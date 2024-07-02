@@ -9,7 +9,7 @@ export class UserMapper {
     return new User({
       id: model._id,
       name: model.name,
-      email: new Email(model.name),
+      email: new Email(model.email),
       secret: model.secret,
       createdAt: model.created_at,
       lastLoginAt: model.last_login_at,

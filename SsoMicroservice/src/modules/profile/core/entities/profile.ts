@@ -1,4 +1,3 @@
-import { Entity } from "@libs/ddd"
 import { ISetting, ToggleSetting } from "./setting"
 import { ProfileSettingsBuilder } from "../utils/profile.settings.builder"
 import {
@@ -6,6 +5,7 @@ import {
   TwoFactorSettingFactory,
 } from "../utils/profile.settings.factory"
 import { ProfileSettings } from "../config/enums"
+import { Entity } from "@libs/ddd/entity"
 
 type IProfileData = {
   name: string

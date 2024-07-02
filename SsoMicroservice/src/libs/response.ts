@@ -6,7 +6,7 @@ export class Response {
 
   constructor(message: string, data: object | null) {
     this.message = message
-    this.data = camelToSnakeCaseFields(data)
+    this.data = data ? camelToSnakeCaseFields(data) : null
   }
 }
 

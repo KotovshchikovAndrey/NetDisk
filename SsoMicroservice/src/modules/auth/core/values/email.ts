@@ -1,4 +1,5 @@
-import { ValidationError, ValueObject } from "@libs/ddd"
+import { ValueObject } from "@libs/ddd/value"
+import { ValidationError } from "@modules/common/errors"
 
 export class Email extends ValueObject<string> {
   constructor(value: string) {
