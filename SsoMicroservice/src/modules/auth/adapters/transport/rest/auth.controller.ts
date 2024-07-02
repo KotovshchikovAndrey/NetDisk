@@ -1,10 +1,8 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
-  Header,
   Post,
   Put,
   Query,
@@ -17,7 +15,12 @@ import { AuthService } from "@modules/auth/core/services/auth.service"
 import { Response } from "@libs/response"
 import { Response as NestResponse } from "express"
 import { SessionService } from "@modules/auth/core/services/session.service"
-import { AuthGuard, DeviceGuard, SessionGuard } from "./auth.guard"
+import {
+  AuthGuard,
+  DeviceGuard,
+  RefreshTokenGuard,
+  SessionGuard,
+} from "./auth.guard"
 import { DeviceId, RefreshToken, Session, User } from "./auth.decorator"
 import { CurrentUser, SessionOutput } from "@modules/auth/core/dto/output"
 
@@ -118,6 +121,7 @@ export class AuthRestController {
     return new Response("User signed in successfully", { accessToken })
   }
 
+  @UseGuards(RefreshTokenGuard)
   @Put("refresh")
   async refreshTokenPair(
     @DeviceId() deviceId: string,
@@ -138,6 +142,7 @@ export class AuthRestController {
     return new Response("Successful refresh tokens", { accessToken })
   }
 
+  @UseGuards(AuthGuard)
   @Delete("sign-out")
   async signOut(
     @Res({ passthrough: true }) response: NestResponse,
