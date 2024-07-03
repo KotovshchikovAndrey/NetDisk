@@ -29,22 +29,27 @@ export class TokenMongoRepository implements ITokenRepository {
   }
 
   async revokeById(id: string) {
-    this.tokenCollection.updateOne({ _id: id }, { isRevoked: true })
+    this.tokenCollection.updateOne({ _id: id }, { $set: { is_revoked: true } })
   }
 
   async revokeByUserDevice(userId: string, deviceId: string) {
     this.tokenCollection
-      .updateOne({ userId, deviceId }, { isRevoked: true })
+      .updateMany(
+        { user_id: userId, device_id: deviceId },
+        { $set: { is_revoked: true } },
+      )
       .exec()
   }
 
   async revokeByUser(userId: string) {
-    this.tokenCollection.updateOne({ userId }, { isRevoked: true }).exec()
+    this.tokenCollection
+      .updateMany({ user_id: userId }, { $set: { is_revoked: true } })
+      .exec()
   }
 
   async removeExpired() {
     this.tokenCollection
-      .deleteMany({ expiredAt: { $lte: getUtcNowDate() } })
+      .deleteMany({ expired_at: { $lte: getUtcNowDate() } })
       .exec()
   }
 }

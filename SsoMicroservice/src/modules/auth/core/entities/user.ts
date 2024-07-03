@@ -3,7 +3,7 @@ import { addTimeToDate, getUtcNowDate } from "@libs/datetime"
 import {
   ExpiredAccessCodeError,
   InvalidAccessCodeError,
-} from "../errors/user.error"
+} from "../errors/auth.error"
 import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
 import { Email } from "../values/email"
@@ -92,6 +92,10 @@ export class User extends Entity<IUserData> {
 
   verify() {
     this.data.isVerified = true
+  }
+
+  toggle2faAuthentication() {
+    this.data.is2faEnabled = !this.data.is2faEnabled
   }
 
   private generateCode(length: number): string {

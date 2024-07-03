@@ -5,6 +5,7 @@ import {
   RefreshTokenInput,
   SignInInput,
   SignUpInput,
+  Toggle2faAuthenicationInput,
   VerifyInput,
 } from "../dto/input"
 import { User } from "../entities/user"
@@ -14,15 +15,13 @@ import { AccessCodeObjective } from "../values/access.code"
 import { TokenService } from "./token.service"
 import { check2faCode } from "@libs/2fa.authenticator"
 import {
-  Disabled2faAuthenticationError,
   Invalid2faCodeError,
   InvalidLoginOrPasswordError,
   OccupiedEmailError,
-  UserAlreadyVerifiedError,
   UserNotFoundError,
   UserUnverifiedError,
-} from "../errors/user.error"
-import { UnauthorizedError } from "@modules/common/error"
+} from "../errors/auth.error"
+import { ConflictError, UnauthorizedError } from "@modules/common/error"
 
 @Injectable()
 export class AuthService {
@@ -91,7 +90,7 @@ export class AuthService {
     }
 
     if (user.isVerified) {
-      throw new UserAlreadyVerifiedError()
+      throw new ConflictError("User already verified")
     }
 
     user.validateAccessCode(input.code, AccessCodeObjective.VerifySignUp)
@@ -107,7 +106,7 @@ export class AuthService {
     }
 
     if (user.isVerified) {
-      throw new UserAlreadyVerifiedError()
+      throw new ConflictError("User already verified")
     }
 
     const code = user.issueAccessCode(AccessCodeObjective.VerifySignUp)
@@ -125,7 +124,7 @@ export class AuthService {
     }
 
     if (!user.is2faEnabled) {
-      throw new Disabled2faAuthenticationError()
+      throw new ConflictError("Two factor authentication disabled")
     }
 
     if (!check2faCode(input.code, user.secret)) {
@@ -142,7 +141,21 @@ export class AuthService {
       throw new UnauthorizedError()
     }
 
-    return new CurrentUser(user.id, user.email.value)
+    return new CurrentUser(user.id, user.name, user.email.value, user.secret)
+  }
+
+  async toggle2faAuthentication(input: Toggle2faAuthenicationInput) {
+    const user = await this.repository.findById(input.userId)
+    if (!user) {
+      throw new UserNotFoundError()
+    }
+
+    if (!check2faCode(input.code, user.secret)) {
+      throw new Invalid2faCodeError()
+    }
+
+    user.toggle2faAuthentication()
+    this.repository.save(user)
   }
 
   private async sendVerificationCodeEmail(email: string, code: string) {

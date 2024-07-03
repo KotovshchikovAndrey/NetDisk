@@ -1,23 +1,17 @@
 import {
-  InvalidTokenError,
-  TokenExpiredError,
-} from "@modules/auth/core/errors/token.error"
-import {
-  Disabled2faAuthenticationError,
   ExpiredAccessCodeError,
   Invalid2faCodeError,
   InvalidAccessCodeError,
   InvalidLoginOrPasswordError,
   OccupiedEmailError,
-  UserAlreadyVerifiedError,
   UserNotFoundError,
-} from "@modules/auth/core/errors/user.error"
+} from "@modules/auth/core/errors/auth.error"
 import {
+  ConflictError,
   PermissionDeniedError,
   UnauthorizedError,
   ValidationError,
 } from "@modules/common/error"
-import { DefaultSettingsAlreadyExistsError } from "@modules/profile/core/error/setting.error"
 import { HttpStatus } from "@nestjs/common"
 
 export class HttpStatusMapper {
@@ -27,7 +21,6 @@ export class HttpStatusMapper {
         return HttpStatus.BAD_REQUEST
 
       case UnauthorizedError:
-      case TokenExpiredError:
       case InvalidLoginOrPasswordError:
         return HttpStatus.UNAUTHORIZED
 
@@ -36,15 +29,12 @@ export class HttpStatusMapper {
 
       case InvalidAccessCodeError:
       case ExpiredAccessCodeError:
-      case InvalidTokenError:
       case PermissionDeniedError:
       case Invalid2faCodeError:
         return HttpStatus.FORBIDDEN
 
+      case ConflictError:
       case OccupiedEmailError:
-      case UserAlreadyVerifiedError:
-      case DefaultSettingsAlreadyExistsError:
-      case Disabled2faAuthenticationError:
         return HttpStatus.CONFLICT
 
       default:

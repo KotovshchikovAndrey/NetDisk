@@ -33,6 +33,14 @@ export class UnauthorizedError extends BaseError {
   }
 }
 
+export class ConflictError extends BaseError {
+  private static readonly code = "ERR_CONFLICT"
+
+  constructor(message: string) {
+    super(ConflictError.code, message)
+  }
+}
+
 export class InternalError extends BaseError {
   private static readonly code = "ERR_INTERNAL"
 

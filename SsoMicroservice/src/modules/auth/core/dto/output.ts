@@ -20,5 +20,14 @@ export class SessionOutput {
 }
 
 export class CurrentUser {
-  constructor(readonly id: string, readonly email: string) {}
+  constructor(
+    readonly id: string,
+    readonly name: string,
+    readonly email: string,
+    readonly secret: string,
+  ) {}
 }
+
+// export class Enable2faAuthenticationOutput {
+//   constructor(private readonly qrcodeUrl: string) {}
+// }

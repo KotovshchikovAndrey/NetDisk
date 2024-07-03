@@ -25,3 +25,7 @@ export class VerifyInput {
     readonly code: string,
   ) {}
 }
+
+export class Toggle2faAuthenicationInput {
+  constructor(readonly userId: string, readonly code: string) {}
+}

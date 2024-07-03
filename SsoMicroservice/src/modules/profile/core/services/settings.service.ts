@@ -6,7 +6,7 @@ import {
   BackgroundColorSettingFactory,
   TwoFactorSettingFactory,
 } from "../utils/profile.settings.factory"
-import { DefaultSettingsAlreadyExistsError } from "../error/setting.error"
+import { ConflictError } from "@modules/common/error"
 
 @Injectable()
 export class SettingSerive {
@@ -18,7 +18,7 @@ export class SettingSerive {
   async createDefaultSettings() {
     const isEmptyRepository = await this.repository.isEmpty()
     if (!isEmptyRepository) {
-      throw new DefaultSettingsAlreadyExistsError()
+      throw new ConflictError("Default settings already created")
     }
 
     const settingBuilder = new ProfileSettingsBuilder()

@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Post,
   Put,
   Query,
@@ -23,6 +25,7 @@ import {
 } from "./auth.guard"
 import { DeviceId, RefreshToken, Session, User } from "./auth.decorator"
 import { CurrentUser, SessionOutput } from "@modules/auth/core/dto/output"
+import { generate2faQRCode } from "@libs/2fa.authenticator"
 
 @UseGuards(DeviceGuard)
 @Controller("auth")
@@ -94,7 +97,7 @@ export class AuthRestController {
   }
 
   @UseGuards(SessionGuard)
-  @Get("sign-in/2fa")
+  @Get("2fa")
   async verify2faCode(
     @Query(
       new ValidationPipe({
@@ -121,6 +124,36 @@ export class AuthRestController {
     return new Response("User signed in successfully", { accessToken })
   }
 
+  @UseGuards(AuthGuard)
+  @Post("2fa")
+  async generate2faQRCode(@User() currentUser: CurrentUser) {
+    const qrcode = await generate2faQRCode({
+      username: currentUser.name,
+      service: "SOME_NAME",
+      secret: currentUser.secret,
+    })
+
+    return new Response("QRCode for scan", { qrcode })
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put("2fa")
+  toggle2faAuthenication(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+      }),
+    )
+    dto: VerifyDto,
+    @User() currentUser: CurrentUser,
+  ) {
+    return this.authService.toggle2faAuthentication({
+      userId: currentUser.id,
+      code: dto.code,
+    })
+  }
+
   @UseGuards(RefreshTokenGuard)
   @Put("refresh")
   async refreshTokenPair(
@@ -143,6 +176,7 @@ export class AuthRestController {
   }
 
   @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete("sign-out")
   async signOut(
     @Res({ passthrough: true }) response: NestResponse,

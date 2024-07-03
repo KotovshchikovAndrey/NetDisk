@@ -9,14 +9,13 @@ import {
   generateRS256Jwt,
   validateRS256Jwt,
 } from "@libs/jwt"
-import { InvalidTokenError, TokenExpiredError } from "../errors/token.error"
 import { ConfigService } from "@nestjs/config"
 import { readFile } from "fs/promises"
 import { randomUUID } from "crypto"
 import { getCurrentTimestamp } from "@libs/datetime"
 import { Token } from "../entities/token"
 import { TOKEN_REPOSITORY_PROVIDER } from "../configs/settings"
-import { PermissionDeniedError } from "@modules/common/error"
+import { PermissionDeniedError, UnauthorizedError } from "@modules/common/error"
 
 @Injectable()
 export class TokenService {
@@ -55,29 +54,19 @@ export class TokenService {
   }
 
   async refreshPair(refreshToken: string) {
-    try {
-      const payload = await this.validateToken(refreshToken)
-      const token = await this.repository.findById(payload.jti)
-      if (!token) {
-        throw new InvalidTokenError("Permission denied")
-      }
-
-      if (token.isRevoked) {
-        await this.repository.revokeByUser(payload.sub)
-        throw new PermissionDeniedError()
-      }
-
-      await this.repository.revokeByUserDevice(token.userId, token.deviceId)
-      return this.issuePair(token.userId, token.deviceId)
-    } catch (err) {
-      if (err instanceof JwtExpiredError) {
-        throw new TokenExpiredError()
-      }
-
-      if (err instanceof InvalidJwtError) {
-        throw new InvalidTokenError("Permission denied")
-      }
+    const payload = await this.validateToken(refreshToken)
+    const token = await this.repository.findById(payload.jti)
+    if (!token) {
+      throw new PermissionDeniedError()
     }
+
+    if (token.isRevoked) {
+      await this.repository.revokeByUser(payload.sub)
+      throw new PermissionDeniedError()
+    }
+
+    await this.repository.revokeByUserDevice(token.userId, token.deviceId)
+    return this.issuePair(token.userId, token.deviceId)
   }
 
   async invalidateToken(token: string) {
@@ -91,7 +80,7 @@ export class TokenService {
       return payload
     } catch (err) {
       if (err instanceof InvalidJwtError) {
-        throw new InvalidTokenError("Permission denied")
+        throw new PermissionDeniedError()
       }
     }
   }
@@ -103,11 +92,11 @@ export class TokenService {
       return validateRS256Jwt(token, publicKey)
     } catch (err) {
       if (err instanceof JwtExpiredError) {
-        throw new TokenExpiredError()
+        throw new UnauthorizedError()
       }
 
       if (err instanceof InvalidJwtError) {
-        throw new InvalidTokenError("Permission denied")
+        throw new PermissionDeniedError()
       }
     }
   }

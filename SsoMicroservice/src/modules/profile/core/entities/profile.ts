@@ -28,8 +28,4 @@ export class Profile extends Entity<IProfileData> {
       .add(new BackgroundColorSettingFactory().create())
       .build()
   }
-
-  toggle2faAuthentication() {
-    this.data.is2faEnabled = !this.data.is2faEnabled
-  }
 }

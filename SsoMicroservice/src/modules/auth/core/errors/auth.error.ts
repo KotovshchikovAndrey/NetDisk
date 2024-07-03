@@ -40,27 +40,11 @@ export class UserNotFoundError extends BaseError {
   }
 }
 
-export class UserAlreadyVerifiedError extends BaseError {
-  private static readonly code = "ERR_USER_ALREADY_VERIFIED"
-
-  constructor(message: string = "User already verified") {
-    super(UserAlreadyVerifiedError.code, message)
-  }
-}
-
 export class UserUnverifiedError extends BaseError {
   private static readonly code = "ERR_USER_UNVERIFIED"
 
   constructor(message: string = "User unverified") {
     super(UserUnverifiedError.code, message)
-  }
-}
-
-export class Disabled2faAuthenticationError extends BaseError {
-  private static readonly code = "ERR_2FA_DISABLED"
-
-  constructor(message: string = "Two factor authentication disabled") {
-    super(Disabled2faAuthenticationError.code, message)
   }
 }
 
