@@ -34,7 +34,7 @@ export class UserModel {
   @Prop({ required: true })
   hashed_password: string
 
-  @Prop({ default: [] })
+  @Prop({ required: true, default: [] })
   access_codes: {
     code: string
     created_at: Date

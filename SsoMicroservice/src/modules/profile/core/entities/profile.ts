@@ -1,10 +1,9 @@
-import { ISetting, ToggleSetting } from "./setting"
+import { ISetting } from "./setting"
 import { ProfileSettingsBuilder } from "../utils/profile.settings.builder"
 import {
   BackgroundColorSettingFactory,
   TwoFactorSettingFactory,
 } from "../utils/profile.settings.factory"
-import { ProfileSettings } from "../config/enums"
 import { Entity } from "@libs/ddd/entity"
 
 type IProfileData = {
@@ -31,12 +30,6 @@ export class Profile extends Entity<IProfileData> {
   }
 
   toggle2faAuthentication() {
-    this.data.settings.forEach((setting) => {
-      if (setting.id === ProfileSettings.TWO_FACTOR_AUTHENTICATION) {
-        const twofaSetting = setting as ToggleSetting
-        twofaSetting.toggle()
-        return
-      }
-    })
+    this.data.is2faEnabled = !this.data.is2faEnabled
   }
 }

@@ -1,3 +1,4 @@
+import { getUtcNowDate } from "@libs/datetime"
 import { ValueObject } from "@libs/ddd/value"
 
 export type IAccessCodeProps = {
@@ -21,8 +22,7 @@ export class AccessCode extends ValueObject<IAccessCodeProps> {
   }
 
   isExpired(): boolean {
-    const utcNow = new Date(Math.floor(Date.now()))
-    return this.value.expiredAt <= utcNow
+    return this.value.expiredAt <= getUtcNowDate()
   }
 
   protected validate(value: IAccessCodeProps): void {

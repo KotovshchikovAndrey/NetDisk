@@ -1,5 +1,5 @@
 import { User } from "@modules/auth/core/entities/user"
-import { TokenModel, UserModel } from "./models"
+import { TokenModel, UserModel } from "./model"
 import { Token } from "@modules/auth/core/entities/token"
 import { AccessCode } from "@modules/auth/core/values/access.code"
 import { Email } from "@modules/auth/core/values/email"

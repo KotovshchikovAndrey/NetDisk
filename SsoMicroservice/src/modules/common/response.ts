@@ -1,4 +1,4 @@
-import { camelToSnakeCaseFields } from "./transform"
+import { camelToSnakeCaseFields } from "../../libs/transform"
 
 export class Response {
   readonly message: string

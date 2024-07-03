@@ -9,14 +9,14 @@ import {
   generateRS256Jwt,
   validateRS256Jwt,
 } from "@libs/jwt"
-import { InvalidTokenError, TokenExpiredError } from "../errors/token.errors"
+import { InvalidTokenError, TokenExpiredError } from "../errors/token.error"
 import { ConfigService } from "@nestjs/config"
 import { readFile } from "fs/promises"
 import { randomUUID } from "crypto"
 import { getCurrentTimestamp } from "@libs/datetime"
 import { Token } from "../entities/token"
 import { TOKEN_REPOSITORY_PROVIDER } from "../configs/settings"
-import { PermissionDeniedError } from "@modules/common/errors"
+import { PermissionDeniedError } from "@modules/common/error"
 
 @Injectable()
 export class TokenService {

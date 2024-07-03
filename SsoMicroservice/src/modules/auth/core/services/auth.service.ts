@@ -21,8 +21,8 @@ import {
   UserAlreadyVerifiedError,
   UserNotFoundError,
   UserUnverifiedError,
-} from "../errors/user.errors"
-import { UnauthorizedError } from "@modules/common/errors"
+} from "../errors/user.error"
+import { UnauthorizedError } from "@modules/common/error"
 
 @Injectable()
 export class AuthService {

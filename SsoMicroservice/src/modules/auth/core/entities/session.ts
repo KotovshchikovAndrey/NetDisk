@@ -21,8 +21,7 @@ export class Session extends Entity<ISessionData> {
   }
 
   isExpired() {
-    const utcNow = new Date(Math.floor(Date.now()))
-    return this.data.expiredAt <= utcNow
+    return this.data.expiredAt <= getUtcNowDate()
   }
 
   getTtl() {

@@ -1,4 +1,4 @@
-import { BaseError } from "@modules/common/errors"
+import { BaseError } from "@modules/common/error"
 
 export class InvalidAccessCodeError extends BaseError {
   private static readonly code = "ERR_INVALID_ACCESS_CODE"

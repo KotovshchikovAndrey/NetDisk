@@ -3,7 +3,7 @@ import { addTimeToDate, getUtcNowDate } from "@libs/datetime"
 import {
   ExpiredAccessCodeError,
   InvalidAccessCodeError,
-} from "../errors/user.errors"
+} from "../errors/user.error"
 import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
 import { Email } from "../values/email"

@@ -1,9 +1,9 @@
 import { Token } from "@modules/auth/core/entities/token"
 import { ITokenRepository } from "@modules/auth/core/ports/token.repository"
 import { InjectModel } from "@nestjs/mongoose"
-import { TokenDocument, TokenModel } from "./models"
+import { TokenDocument, TokenModel } from "./model"
 import { Model } from "mongoose"
-import { TokenMapper } from "./mappers"
+import { TokenMapper } from "./mapper"
 import { getUtcNowDate } from "@libs/datetime"
 
 export class TokenMongoRepository implements ITokenRepository {

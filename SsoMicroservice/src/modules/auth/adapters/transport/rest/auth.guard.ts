@@ -1,9 +1,6 @@
 import { AuthService } from "@modules/auth/core/services/auth.service"
 import { SessionService } from "@modules/auth/core/services/session.service"
-import {
-  PermissionDeniedError,
-  UnauthorizedError,
-} from "@modules/common/errors"
+import { PermissionDeniedError, UnauthorizedError } from "@modules/common/error"
 import {
   BadRequestException,
   CanActivate,

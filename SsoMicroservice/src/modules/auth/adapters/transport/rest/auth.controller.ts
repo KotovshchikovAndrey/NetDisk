@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common"
 import { SignInDto, SignUpDto, VerifyDto } from "./auth.dto"
 import { AuthService } from "@modules/auth/core/services/auth.service"
-import { Response } from "@libs/response"
+import { Response } from "@modules/common/response"
 import { Response as NestResponse } from "express"
 import { SessionService } from "@modules/auth/core/services/session.service"
 import {
