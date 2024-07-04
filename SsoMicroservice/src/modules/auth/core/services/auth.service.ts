@@ -22,12 +22,20 @@ import {
   UserUnverifiedError,
 } from "../errors/auth.error"
 import { ConflictError, UnauthorizedError } from "@modules/common/error"
+import { ConfigService } from "@nestjs/config"
+import { IMediator } from "@libs/ddd/event"
+import { MEDIATOR_PROVIDER } from "@modules/common/settings"
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY_PROVIDER)
     private readonly repository: IUserRepository,
+
+    @Inject(MEDIATOR_PROVIDER)
+    private readonly mediator: IMediator,
+
+    private readonly configService: ConfigService,
     private readonly tokenService: TokenService,
   ) {}
 
@@ -43,9 +51,8 @@ export class AuthService {
       password: input.password,
     })
 
-    const code = newUser.issueAccessCode(AccessCodeObjective.VerifySignUp)
     await this.repository.save(newUser)
-    this.sendVerificationCodeEmail(newUser.email.value, code)
+    await this.mediator.notify(newUser.publishEvents())
 
     return new SignUpOutput(newUser.id)
   }
@@ -93,10 +100,10 @@ export class AuthService {
       throw new ConflictError("User already verified")
     }
 
-    user.validateAccessCode(input.code, AccessCodeObjective.VerifySignUp)
-    user.verify()
+    user.verify(input.code)
+    await this.repository.save(user)
 
-    this.repository.save(user)
+    return this.mediator.notify(user.publishEvents())
   }
 
   async resendUserVerificationCode(userId: string) {
@@ -110,7 +117,19 @@ export class AuthService {
     }
 
     const code = user.issueAccessCode(AccessCodeObjective.VerifySignUp)
-    this.sendVerificationCodeEmail(user.email.value, code)
+    await this.repository.save(user)
+    await this.mediator.notify(user.publishEvents())
+
+    return sendEmail({
+      smtpHost: this.configService.get<string>("SMTP_HOST"),
+      smtpPort: this.configService.get<number>("SMTP_PORT"),
+      user: this.configService.get<string>("SMTP_USER"),
+      password: this.configService.get<string>("SMTP_PASSWORD"),
+      from: `NetDisk: ${this.configService.get<string>("SMTP_FROM")}`,
+      to: user.email.value,
+      subject: "Верификация аккаунта на NetDisk",
+      htmlBody: `<p>Код для верификации: <strong>${code}</strong></p>`,
+    })
   }
 
   async verify2faCode(input: VerifyInput) {
@@ -155,23 +174,8 @@ export class AuthService {
     }
 
     user.toggle2faAuthentication()
-    this.repository.save(user)
-  }
+    await this.repository.save(user)
 
-  private async sendVerificationCodeEmail(email: string, code: string) {
-    try {
-      await sendEmail({
-        smtpHost: "",
-        smtpPort: 532,
-        from: "",
-        fromPassword: "",
-        to: email,
-        subject: "Верификация аккаунта на NetDisk",
-        body: `Код для верификации: ${code}`,
-      })
-    } catch (err) {
-      // log error
-      // send to broker for retry
-    }
+    return this.mediator.notify(user.publishEvents())
   }
 }

@@ -48,7 +48,7 @@ export class TokenMongoRepository implements ITokenRepository {
   }
 
   async removeExpired() {
-    this.tokenCollection
+    await this.tokenCollection
       .deleteMany({ expired_at: { $lte: getUtcNowDate() } })
       .exec()
   }

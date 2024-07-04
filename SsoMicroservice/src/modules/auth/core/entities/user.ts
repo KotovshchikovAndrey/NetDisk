@@ -6,10 +6,11 @@ import {
 } from "../errors/auth.error"
 import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
-import { Email } from "../values/email"
 import { Entity } from "@libs/ddd/entity"
+import { Email } from "@modules/common/value"
+import { UserCreatedEvent } from "../events/user.created"
 
-type IUserData = {
+export type IUserData = {
   name: string
   email: Email
   secret: string
@@ -33,7 +34,7 @@ export class User extends Entity<IUserData> {
   }
 
   static async create(data: INewUserData) {
-    return new User({
+    const newUser = new User({
       name: data.name,
       email: new Email(data.email),
       secret: randomUUID(),
@@ -44,6 +45,9 @@ export class User extends Entity<IUserData> {
       isVerified: false,
       accessCodes: [],
     })
+
+    newUser.addEvent(new UserCreatedEvent(newUser))
+    return newUser
   }
 
   async checkPassword(password: string) {
@@ -70,27 +74,8 @@ export class User extends Entity<IUserData> {
     return code
   }
 
-  validateAccessCode(code: string, objective: AccessCodeObjective) {
-    const index = this.accessCodes.findIndex(
-      (accessCode) =>
-        accessCode.value.objective === objective &&
-        accessCode.value.code === code,
-    )
-
-    if (index === -1) {
-      throw new InvalidAccessCodeError()
-    }
-
-    const accessCode = this.data.accessCodes[index]
-    if (accessCode.isExpired()) {
-      throw new ExpiredAccessCodeError()
-    }
-
-    // remove one-time code
-    this.data.accessCodes.splice(index, 1)
-  }
-
-  verify() {
+  verify(code: string) {
+    this.validateAccessCode(code, AccessCodeObjective.VerifySignUp)
     this.data.isVerified = true
   }
 
@@ -110,6 +95,26 @@ export class User extends Entity<IUserData> {
     }
 
     return code.join("")
+  }
+
+  private validateAccessCode(code: string, objective: AccessCodeObjective) {
+    const index = this.accessCodes.findIndex(
+      (accessCode) =>
+        accessCode.value.objective === objective &&
+        accessCode.value.code === code,
+    )
+
+    if (index === -1) {
+      throw new InvalidAccessCodeError()
+    }
+
+    const accessCode = this.data.accessCodes[index]
+    if (accessCode.isExpired()) {
+      throw new ExpiredAccessCodeError()
+    }
+
+    // remove one-time code
+    this.data.accessCodes.splice(index, 1)
   }
 
   get name() {

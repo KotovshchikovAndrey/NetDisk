@@ -21,6 +21,7 @@ import Redis from "ioredis"
 import { ConfigService } from "@nestjs/config"
 import { SessionRedisRepository } from "./adapters/storage/redis/session.repository"
 import { SessionService } from "./core/services/session.service"
+import { SendVerificationCodeEmailHandler } from "./core/events/handlers/send.verification.code.email"
 
 @Module({
   controllers: [AuthRestController],
@@ -69,6 +70,9 @@ import { SessionService } from "./core/services/session.service"
     AuthService,
     TokenService,
     SessionService,
+
+    SendVerificationCodeEmailHandler,
   ],
+  exports: [SendVerificationCodeEmailHandler],
 })
 export class AuthModule {}

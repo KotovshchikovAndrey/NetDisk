@@ -26,10 +26,10 @@ export class SessionRedisRepository implements ISessionRepository {
       expiredAt: session.expiredAt,
     })
 
-    this.redis.setex(session.id, session.getTtl(), data)
+    await this.redis.setex(session.id, session.getTtl(), data)
   }
 
   async deleteById(id: string) {
-    this.redis.del(id)
+    await this.redis.del(id)
   }
 }

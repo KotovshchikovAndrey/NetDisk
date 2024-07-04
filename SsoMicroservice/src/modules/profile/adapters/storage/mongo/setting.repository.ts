@@ -67,7 +67,7 @@ export class SettingMongoRepository implements ISettingRepository {
       }
     })
 
-    this.collection.insertMany(<SettingDocumet[]>models)
+    await this.collection.insertMany(<SettingDocumet[]>models)
   }
 
   async isEmpty() {

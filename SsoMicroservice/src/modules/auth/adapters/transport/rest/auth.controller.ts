@@ -63,7 +63,7 @@ export class AuthRestController {
   }
 
   @UseGuards(AuthGuard)
-  @Get("verify/resend")
+  @Post("verify")
   async resendUserVerificationCode(@User() currentUser: CurrentUser) {
     await this.authService.resendUserVerificationCode(currentUser.id)
     return new Response("New code was resent successfully", null)

@@ -31,7 +31,7 @@ export class UserMongoRepository implements IUserRepository {
 
   async save(user: User) {
     const model = UserMapper.fromDomain(user)
-    this.userCollection
+    await this.userCollection
       .updateOne({ _id: model._id }, model, { upsert: true })
       .exec()
   }

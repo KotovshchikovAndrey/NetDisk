@@ -3,6 +3,7 @@ import { ProfileModule } from "@modules/profile/profile.module"
 import { Module } from "@nestjs/common"
 import { ConfigModule, ConfigService } from "@nestjs/config"
 import { MongooseModule } from "@nestjs/mongoose"
+import { MediatorModule } from "./modules/mediator/mediator.module"
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { MongooseModule } from "@nestjs/mongoose"
 
     AuthModule,
     ProfileModule,
+    MediatorModule,
   ],
   controllers: [],
 })
