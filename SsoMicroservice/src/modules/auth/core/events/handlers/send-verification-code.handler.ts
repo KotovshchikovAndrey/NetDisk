@@ -1,15 +1,16 @@
 import { IDomainEventHandler } from "@libs/ddd/event"
-import { UserCreatedEvent } from "../user.created"
 import { sendEmail } from "@libs/email"
 import { ConfigService } from "@nestjs/config"
 import { Inject, Injectable } from "@nestjs/common"
 import { IUserRepository } from "../../ports/user.repository"
 import { AccessCodeObjective } from "../../values/access.code"
 import { USER_REPOSITORY_PROVIDER } from "../../configs/settings"
+import { OnEvent } from "@nestjs/event-emitter"
+import { UserSignedUpEvent } from "../event"
 
 @Injectable()
-export class SendVerificationCodeEmailHandler
-  implements IDomainEventHandler<UserCreatedEvent>
+export class SendVerificationCodeHandler
+  implements IDomainEventHandler<UserSignedUpEvent>
 {
   constructor(
     @Inject(USER_REPOSITORY_PROVIDER)
@@ -17,7 +18,8 @@ export class SendVerificationCodeEmailHandler
     private readonly configService: ConfigService,
   ) {}
 
-  async handle({ user }: UserCreatedEvent) {
+  @OnEvent("user.signed-up")
+  async handle({ user }: UserSignedUpEvent) {
     const code = user.issueAccessCode(AccessCodeObjective.VerifySignUp)
     await this.repository.save(user)
 

@@ -8,7 +8,6 @@ import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
 import { Entity } from "@libs/ddd/entity"
 import { Email } from "@modules/common/value"
-import { UserCreatedEvent } from "../events/user.created"
 
 export type IUserData = {
   name: string
@@ -34,7 +33,7 @@ export class User extends Entity<IUserData> {
   }
 
   static async create(data: INewUserData) {
-    const newUser = new User({
+    return new User({
       name: data.name,
       email: new Email(data.email),
       secret: randomUUID(),
@@ -45,9 +44,6 @@ export class User extends Entity<IUserData> {
       isVerified: false,
       accessCodes: [],
     })
-
-    newUser.addEvent(new UserCreatedEvent(newUser))
-    return newUser
   }
 
   async checkPassword(password: string) {

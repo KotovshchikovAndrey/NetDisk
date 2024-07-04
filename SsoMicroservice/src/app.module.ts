@@ -2,11 +2,12 @@ import { AuthModule } from "@modules/auth/auth.module"
 import { ProfileModule } from "@modules/profile/profile.module"
 import { Module } from "@nestjs/common"
 import { ConfigModule, ConfigService } from "@nestjs/config"
+import { EventEmitterModule } from "@nestjs/event-emitter"
 import { MongooseModule } from "@nestjs/mongoose"
-import { MediatorModule } from "./modules/mediator/mediator.module"
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
 
     MongooseModule.forRootAsync({
@@ -67,7 +68,6 @@ import { MediatorModule } from "./modules/mediator/mediator.module"
 
     AuthModule,
     ProfileModule,
-    MediatorModule,
   ],
   controllers: [],
 })

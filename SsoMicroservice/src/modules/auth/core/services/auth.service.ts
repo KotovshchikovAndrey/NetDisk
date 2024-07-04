@@ -23,20 +23,17 @@ import {
 } from "../errors/auth.error"
 import { ConflictError, UnauthorizedError } from "@modules/common/error"
 import { ConfigService } from "@nestjs/config"
-import { IMediator } from "@libs/ddd/event"
-import { MEDIATOR_PROVIDER } from "@modules/common/settings"
+import { EventEmitter2 } from "@nestjs/event-emitter"
+import { UserSignedUpEvent } from "../events/event"
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY_PROVIDER)
     private readonly repository: IUserRepository,
-
-    @Inject(MEDIATOR_PROVIDER)
-    private readonly mediator: IMediator,
-
     private readonly configService: ConfigService,
     private readonly tokenService: TokenService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async signUp(input: SignUpInput) {
@@ -52,7 +49,7 @@ export class AuthService {
     })
 
     await this.repository.save(newUser)
-    await this.mediator.notify(newUser.publishEvents())
+    this.eventEmitter.emit("user.signed-up", new UserSignedUpEvent(newUser))
 
     return new SignUpOutput(newUser.id)
   }
@@ -101,9 +98,7 @@ export class AuthService {
     }
 
     user.verify(input.code)
-    await this.repository.save(user)
-
-    return this.mediator.notify(user.publishEvents())
+    return this.repository.save(user)
   }
 
   async resendUserVerificationCode(userId: string) {
@@ -118,7 +113,6 @@ export class AuthService {
 
     const code = user.issueAccessCode(AccessCodeObjective.VerifySignUp)
     await this.repository.save(user)
-    await this.mediator.notify(user.publishEvents())
 
     return sendEmail({
       smtpHost: this.configService.get<string>("SMTP_HOST"),
@@ -174,8 +168,6 @@ export class AuthService {
     }
 
     user.toggle2faAuthentication()
-    await this.repository.save(user)
-
-    return this.mediator.notify(user.publishEvents())
+    return this.repository.save(user)
   }
 }

@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from "@nestjs/common"
 import { Response as NestResponse } from "express"
-import { HttpStatusMapper } from "./http.status.mapper"
+import { HttpStatusMapper } from "./http-status.mapper"
 import { BaseError } from "@modules/common/error"
 import { ErrorResponse } from "@modules/common/response"
 

@@ -16,7 +16,7 @@ import { SettingMongoRepository } from "./adapters/storage/mongo/setting.reposit
 import { SettingSerive } from "./core/services/settings.service"
 import { SettingController } from "./adapters/transport/rest/setting.controller"
 import { ProfileService } from "./core/services/profile.service"
-import { CreateProfileHandler } from "./core/events/handlers/create.profile"
+import { CreateProfileHandler } from "./core/events/handlers/create-profile"
 import { ProfileMongoRepository } from "./adapters/storage/mongo/profile.repository"
 
 @Module({
@@ -43,6 +43,5 @@ import { ProfileMongoRepository } from "./adapters/storage/mongo/profile.reposit
     CreateProfileHandler,
   ],
   controllers: [SettingController],
-  exports: [CreateProfileHandler],
 })
 export class ProfileModule {}
