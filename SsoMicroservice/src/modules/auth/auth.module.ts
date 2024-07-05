@@ -6,7 +6,7 @@ import {
   TokenSchema,
   UserModel,
   UserSchema,
-} from "./adapters/storage/mongo/model"
+} from "./adapters/storage/mongo/models"
 import {
   REDIS_CLIENT_PROVIDER,
   SESSION_REPOSITORY_PROVIDER,

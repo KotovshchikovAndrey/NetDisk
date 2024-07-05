@@ -6,9 +6,11 @@ import {
 } from "../utils/profile.settings.factory"
 import { Entity } from "@libs/ddd/entity"
 import { Email } from "@modules/common/values/email"
+import { Username } from "@modules/common/values/username"
+import { User } from "@modules/auth/core/entities/user"
 
 type ProfileData = {
-  name: string
+  name: Username
   email: Email
   is2faEnabled: boolean
   isVerified: boolean
@@ -20,18 +22,22 @@ export class Profile extends Entity<ProfileData> {
     super(data, id)
   }
 
-  static createForUser(data: Omit<ProfileData, "settings"> & { id: string }) {
+  static createForUser(user: User) {
     const newProfile = new Profile({
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      is2faEnabled: data.is2faEnabled,
-      isVerified: data.isVerified,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      is2faEnabled: user.is2faEnabled,
+      isVerified: user.isVerified,
       settings: [],
     })
 
     newProfile.setDefaultSettings()
     return newProfile
+  }
+
+  changeName(newName: string) {
+    this.data.name = new Username(newName)
   }
 
   setDefaultSettings() {

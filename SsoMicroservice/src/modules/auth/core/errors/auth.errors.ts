@@ -1,4 +1,4 @@
-import { BaseError } from "@modules/common/error"
+import { BaseError } from "@modules/common/errors"
 
 export class InvalidAccessCodeError extends BaseError {
   private static readonly code = "ERR_INVALID_ACCESS_CODE"
@@ -29,14 +29,6 @@ export class InvalidLoginOrPasswordError extends BaseError {
 
   constructor(message: string = "Invalid login or password") {
     super(InvalidLoginOrPasswordError.code, message)
-  }
-}
-
-export class UserNotFoundError extends BaseError {
-  private static readonly code = "ERR_USER_NOT_FOUND"
-
-  constructor(message: string = "User not found") {
-    super(UserNotFoundError.code, message)
   }
 }
 

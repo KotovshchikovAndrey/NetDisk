@@ -1,9 +1,9 @@
 import { Setting } from "@modules/profile/core/entities/setting"
 import { ISettingRepository } from "@modules/profile/core/ports/setting.repository"
 import { InjectConnection } from "@nestjs/mongoose"
-import { SettingModel } from "./model"
+import { SettingModel } from "./models"
 import { Connection, Collection } from "mongoose"
-import { SettingMapper } from "./mapper"
+import { SettingMapper } from "./mappers"
 
 export class SettingMongoRepository implements ISettingRepository {
   private readonly collection: Collection<SettingModel>

@@ -1,4 +1,4 @@
-import { Response } from "@modules/common/response"
+import { Response } from "@modules/common/responses"
 import { SettingSerive } from "@modules/profile/core/services/settings.service"
 import { Controller, Post } from "@nestjs/common"
 

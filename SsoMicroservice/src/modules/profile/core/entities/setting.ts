@@ -1,5 +1,5 @@
 import { Entity } from "@libs/ddd/entity"
-import { ValidationError } from "@modules/common/error"
+import { ValidationError } from "@modules/common/errors"
 
 export type SingleSettingData = {
   allowedOptions: Set<string>

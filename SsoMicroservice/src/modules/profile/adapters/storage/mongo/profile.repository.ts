@@ -2,8 +2,8 @@ import { Profile } from "@modules/profile/core/entities/profile"
 import { IProfileRepository } from "@modules/profile/core/ports/profile.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { Model } from "mongoose"
-import { MySetting, ProfileModel, SettingModel } from "./model"
-import { ProfileMapper } from "./mapper"
+import { MySetting, ProfileModel, SettingModel } from "./models"
+import { ProfileMapper } from "./mappers"
 
 export class ProfileMongoRepository implements IProfileRepository {
   constructor(

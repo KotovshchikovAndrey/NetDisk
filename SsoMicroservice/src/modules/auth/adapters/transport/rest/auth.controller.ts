@@ -14,7 +14,7 @@ import {
 } from "@nestjs/common"
 import { SignInDto, SignUpDto, VerifyDto } from "./auth.dto"
 import { AuthService } from "@modules/auth/core/services/auth.service"
-import { Response } from "@modules/common/response"
+import { Response } from "@modules/common/responses"
 import { Response as NestResponse } from "express"
 import { SessionService } from "@modules/auth/core/services/session.service"
 import {
@@ -24,7 +24,7 @@ import {
   SessionGuard,
 } from "./auth.guard"
 import { DeviceId, RefreshToken, Session, User } from "./auth.decorator"
-import { CurrentUser, SessionOutput } from "@modules/auth/core/dto/output"
+import { CurrentUser, SessionOutput } from "@modules/auth/core/dto/outputs"
 import { generate2faQRCode } from "@libs/2fa.authenticator"
 
 @UseGuards(DeviceGuard)

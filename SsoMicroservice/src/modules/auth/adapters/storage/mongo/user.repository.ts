@@ -1,9 +1,9 @@
 import { User } from "@modules/auth/core/entities/user"
 import { IUserRepository } from "@modules/auth/core/ports/user.repository"
 import { Model } from "mongoose"
-import { UserModel } from "./model"
+import { UserModel } from "./models"
 import { InjectModel } from "@nestjs/mongoose"
-import { UserMapper } from "./mapper"
+import { UserMapper } from "./mappers"
 
 export class UserMongoRepository implements IUserRepository {
   constructor(

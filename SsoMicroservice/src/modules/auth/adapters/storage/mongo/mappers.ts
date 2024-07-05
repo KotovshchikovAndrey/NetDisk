@@ -1,14 +1,15 @@
 import { User } from "@modules/auth/core/entities/user"
-import { TokenModel, UserModel } from "./model"
+import { TokenModel, UserModel } from "./models"
 import { Token } from "@modules/auth/core/entities/token"
 import { AccessCode } from "@modules/auth/core/values/access.code"
 import { Email } from "@modules/common/values/email"
+import { Username } from "@modules/common/values/username"
 
 export class UserMapper {
   static toDomain(model: UserModel) {
     return new User({
       id: model._id,
-      name: model.name,
+      name: new Username(model.name),
       email: new Email(model.email),
       secret: model.secret,
       createdAt: model.created_at,
@@ -31,7 +32,7 @@ export class UserMapper {
   static fromDomain(entity: User) {
     const model = new UserModel()
     model._id = entity.id
-    model.name = entity.name
+    model.name = entity.name.value
     model.email = entity.email.value
     model.secret = entity.secret
     model.created_at = entity.createdAt

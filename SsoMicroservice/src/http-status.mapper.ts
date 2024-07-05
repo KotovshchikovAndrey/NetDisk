@@ -4,14 +4,14 @@ import {
   InvalidAccessCodeError,
   InvalidLoginOrPasswordError,
   OccupiedEmailError,
-  UserNotFoundError,
-} from "@modules/auth/core/errors/auth.error"
+} from "@modules/auth/core/errors/auth.errors"
 import {
   ConflictError,
+  NotFoundError,
   PermissionDeniedError,
   UnauthorizedError,
   ValidationError,
-} from "@modules/common/error"
+} from "@modules/common/errors"
 import { HttpStatus } from "@nestjs/common"
 
 export class HttpStatusMapper {
@@ -24,7 +24,7 @@ export class HttpStatusMapper {
       case InvalidLoginOrPasswordError:
         return HttpStatus.UNAUTHORIZED
 
-      case UserNotFoundError:
+      case NotFoundError:
         return HttpStatus.NOT_FOUND
 
       case InvalidAccessCodeError:

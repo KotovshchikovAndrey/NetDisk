@@ -6,7 +6,7 @@ import { IUserRepository } from "../../ports/user.repository"
 import { AccessCodeObjective } from "../../values/access.code"
 import { USER_REPOSITORY_PROVIDER } from "../../configs/settings"
 import { OnEvent } from "@nestjs/event-emitter"
-import { UserSignedUpEvent } from "../event"
+import { UserSignedUpEvent } from "../auth.events"
 
 @Injectable()
 export class SendVerificationCodeHandler

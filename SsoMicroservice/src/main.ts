@@ -8,8 +8,13 @@ import { HttpStatusMapper } from "./http-status.mapper"
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalFilters(new HttpExceptionFilter(new HttpStatusMapper()))
-  app.useGlobalPipes(new ValidationPipe())
   app.use(cookieParser())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  )
+
   await app.listen(3000)
 }
 

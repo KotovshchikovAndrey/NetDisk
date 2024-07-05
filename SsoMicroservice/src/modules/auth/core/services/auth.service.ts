@@ -7,10 +7,10 @@ import {
   SignUpInput,
   Toggle2faAuthenicationInput,
   VerifyInput,
-} from "../dto/input"
+} from "../dto/inputs"
 import { User } from "../entities/user"
 import { sendEmail } from "@libs/email"
-import { CurrentUser, SignInOutput, SignUpOutput } from "../dto/output"
+import { CurrentUser, SignInOutput, SignUpOutput } from "../dto/outputs"
 import { AccessCodeObjective } from "../values/access.code"
 import { TokenService } from "./token.service"
 import { check2faCode } from "@libs/2fa.authenticator"
@@ -18,13 +18,16 @@ import {
   Invalid2faCodeError,
   InvalidLoginOrPasswordError,
   OccupiedEmailError,
-  UserNotFoundError,
   UserUnverifiedError,
-} from "../errors/auth.error"
-import { ConflictError, UnauthorizedError } from "@modules/common/error"
+} from "../errors/auth.errors"
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@modules/common/errors"
 import { ConfigService } from "@nestjs/config"
 import { EventEmitter2 } from "@nestjs/event-emitter"
-import { UserSignedUpEvent } from "../events/event"
+import { UserSignedUpEvent } from "../events/auth.events"
 
 @Injectable()
 export class AuthService {
@@ -77,7 +80,7 @@ export class AuthService {
     const payload = this.tokenService.decodeToken(input.refreshToken)
     const user = await this.repository.findById(payload.sub)
     if (!user) {
-      throw new UserNotFoundError()
+      throw new NotFoundError("User not found")
     }
 
     return this.tokenService.refreshPair(input.refreshToken)
@@ -90,7 +93,7 @@ export class AuthService {
   async verifyUser(input: VerifyInput) {
     const user = await this.repository.findById(input.userId)
     if (!user) {
-      throw new UserNotFoundError()
+      throw new NotFoundError("User not found")
     }
 
     if (user.isVerified) {
@@ -104,7 +107,7 @@ export class AuthService {
   async resendUserVerificationCode(userId: string) {
     const user = await this.repository.findById(userId)
     if (!user) {
-      throw new UserNotFoundError()
+      throw new NotFoundError("User not found")
     }
 
     if (user.isVerified) {
@@ -129,7 +132,7 @@ export class AuthService {
   async verify2faCode(input: VerifyInput) {
     const user = await this.repository.findById(input.userId)
     if (!user) {
-      throw new UserNotFoundError()
+      throw new NotFoundError("User not found")
     }
 
     if (!user.isVerified) {
@@ -154,13 +157,18 @@ export class AuthService {
       throw new UnauthorizedError()
     }
 
-    return new CurrentUser(user.id, user.name, user.email.value, user.secret)
+    return new CurrentUser(
+      user.id,
+      user.name.value,
+      user.email.value,
+      user.secret,
+    )
   }
 
   async toggle2faAuthentication(input: Toggle2faAuthenicationInput) {
     const user = await this.repository.findById(input.userId)
     if (!user) {
-      throw new UserNotFoundError()
+      throw new NotFoundError("User not found")
     }
 
     if (!check2faCode(input.code, user.secret)) {

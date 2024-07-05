@@ -9,7 +9,7 @@ import {
   SingleSettingSchema,
   ToggleSettingModel,
   ToggleSettingSchema,
-} from "./adapters/storage/mongo/model"
+} from "./adapters/storage/mongo/models"
 import {
   PROFILE_REPOSITORY_PROVIDER,
   SETTING_REPOSITORY_PROVIDER,
@@ -18,8 +18,9 @@ import { SettingMongoRepository } from "./adapters/storage/mongo/setting.reposit
 import { SettingSerive } from "./core/services/settings.service"
 import { SettingController } from "./adapters/transport/rest/setting.controller"
 import { ProfileService } from "./core/services/profile.service"
-import { CreateProfileHandler } from "./core/events/handlers/create-profile"
+import { CreateProfileHandler } from "./core/events/handlers/create-profile.handler"
 import { ProfileMongoRepository } from "./adapters/storage/mongo/profile.repository"
+import { ProfileController } from "./adapters/transport/rest/profile.controller"
 
 @Module({
   imports: [
@@ -44,11 +45,11 @@ import { ProfileMongoRepository } from "./adapters/storage/mongo/profile.reposit
       useClass: ProfileMongoRepository,
     },
 
-    SettingSerive,
     ProfileService,
+    SettingSerive,
 
     CreateProfileHandler,
   ],
-  controllers: [SettingController],
+  controllers: [ProfileController, SettingController],
 })
 export class ProfileModule {}

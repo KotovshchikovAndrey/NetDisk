@@ -1,4 +1,4 @@
-import { ProfileSettings } from "../config/enum"
+import { ProfileSettings } from "../config/enums"
 import { Setting, SingleSetting, ToggleSetting } from "../entities/setting"
 
 abstract class ProfileSettingFactory {

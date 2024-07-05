@@ -3,8 +3,8 @@ import { Inject, Injectable } from "@nestjs/common"
 import { IProfileRepository } from "../../ports/profile.repository"
 import { Profile } from "../../entities/profile"
 import { PROFILE_REPOSITORY_PROVIDER } from "../../config/settings"
-import { UserSignedUpEvent } from "@modules/auth/core/events/event"
 import { OnEvent } from "@nestjs/event-emitter"
+import { UserSignedUpEvent } from "@modules/auth/core/events/auth.events"
 
 @Injectable()
 export class CreateProfileHandler

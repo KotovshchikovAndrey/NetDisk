@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { ITokenRepository } from "../ports/token.repository"
-import { TokenPairOutput } from "../dto/output"
+import { TokenPairOutput } from "../dto/outputs"
 import {
   JwtPayload,
   InvalidJwtError,
@@ -15,7 +15,10 @@ import { randomUUID } from "crypto"
 import { getCurrentTimestamp } from "@libs/datetime"
 import { Token } from "../entities/token"
 import { TOKEN_REPOSITORY_PROVIDER } from "../configs/settings"
-import { PermissionDeniedError, UnauthorizedError } from "@modules/common/error"
+import {
+  PermissionDeniedError,
+  UnauthorizedError,
+} from "@modules/common/errors"
 
 @Injectable()
 export class TokenService {

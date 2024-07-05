@@ -6,7 +6,7 @@ import {
   BackgroundColorSettingFactory,
   TwoFactorSettingFactory,
 } from "../utils/profile.settings.factory"
-import { ConflictError } from "@modules/common/error"
+import { ConflictError } from "@modules/common/errors"
 
 @Injectable()
 export class SettingSerive {

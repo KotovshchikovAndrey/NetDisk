@@ -7,16 +7,16 @@ import {
 import {
   MultipleSettingModel,
   MyMultipleSetting,
-  MySetting,
   MySingleSetting,
   MyToggleSetting,
   ProfileModel,
   SettingModel,
   SingleSettingModel,
   ToggleSettingModel,
-} from "./model"
+} from "./models"
 import { Profile } from "@modules/profile/core/entities/profile"
 import { Email } from "@modules/common/values/email"
+import { Username } from "@modules/common/values/username"
 
 export class SettingMapper {
   static toDomain(model: SettingModel) {
@@ -127,7 +127,7 @@ export class ProfileMapper {
 
     return new Profile({
       id: model._id,
-      name: model.name,
+      name: new Username(model.name),
       email: new Email(model.email),
       is2faEnabled: model.is_2a_enabled,
       isVerified: model.is_verified,
@@ -138,7 +138,7 @@ export class ProfileMapper {
   static fromDomain(entity: Profile) {
     const model = new ProfileModel()
     model._id = entity.id
-    model.name = entity.name
+    model.name = entity.name.value
     model.email = entity.email.value
     model.is_2a_enabled = entity.is2faEnabled
     model.is_verified = entity.isVerified

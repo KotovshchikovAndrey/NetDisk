@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { ISessionRepository } from "../ports/session.repository"
 import { SESSION_REPOSITORY_PROVIDER } from "../configs/settings"
-import { SessionOutput } from "../dto/output"
+import { SessionOutput } from "../dto/outputs"
 import { Session } from "../entities/session"
 
 @Injectable()

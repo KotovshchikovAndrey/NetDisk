@@ -3,14 +3,15 @@ import { addTimeToDate, getUtcNowDate } from "@libs/datetime"
 import {
   ExpiredAccessCodeError,
   InvalidAccessCodeError,
-} from "../errors/auth.error"
+} from "../errors/auth.errors"
 import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
 import { Entity } from "@libs/ddd/entity"
 import { Email } from "@modules/common/values/email"
+import { Username } from "@modules/common/values/username"
 
 export type UserData = {
-  name: string
+  name: Username
   email: Email
   secret: string
   isVerified: boolean
@@ -34,7 +35,7 @@ export class User extends Entity<UserData> {
 
   static async create(data: NewUserData) {
     return new User({
-      name: data.name,
+      name: new Username(data.name),
       email: new Email(data.email),
       secret: randomUUID(),
       createdAt: getUtcNowDate(),

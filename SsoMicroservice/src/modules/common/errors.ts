@@ -25,6 +25,14 @@ export class ValidationError extends BaseError {
   }
 }
 
+export class NotFoundError extends BaseError {
+  private static readonly code = "ERR_NOT_FOUND"
+
+  constructor(message: string) {
+    super(NotFoundError.code, message)
+  }
+}
+
 export class UnauthorizedError extends BaseError {
   private static readonly code = "ERR_UNAUTHORIZED"
 
