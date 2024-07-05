@@ -1,26 +1,26 @@
-import { ISetting } from "./setting"
+import { Setting } from "./setting"
 import { ProfileSettingsBuilder } from "../utils/profile.settings.builder"
 import {
   BackgroundColorSettingFactory,
   TwoFactorSettingFactory,
 } from "../utils/profile.settings.factory"
 import { Entity } from "@libs/ddd/entity"
-import { Email } from "@modules/common/value"
+import { Email } from "@modules/common/values/email"
 
-type IProfileData = {
+type ProfileData = {
   name: string
   email: Email
   is2faEnabled: boolean
   isVerified: boolean
-  settings: ISetting[]
+  settings: Setting[]
 }
 
-export class Profile extends Entity<IProfileData> {
-  constructor({ id, ...data }: IProfileData & { id: string }) {
+export class Profile extends Entity<ProfileData> {
+  constructor({ id, ...data }: ProfileData & { id: string }) {
     super(data, id)
   }
 
-  static createForUser(data: Omit<IProfileData, "settings"> & { id: string }) {
+  static createForUser(data: Omit<ProfileData, "settings"> & { id: string }) {
     const newProfile = new Profile({
       id: data.id,
       name: data.name,
@@ -40,5 +40,25 @@ export class Profile extends Entity<IProfileData> {
       .add(new TwoFactorSettingFactory().create())
       .add(new BackgroundColorSettingFactory().create())
       .build()
+  }
+
+  get name() {
+    return this.data.name
+  }
+
+  get email() {
+    return this.data.email
+  }
+
+  get isVerified() {
+    return this.data.isVerified
+  }
+
+  get is2faEnabled() {
+    return this.data.is2faEnabled
+  }
+
+  get settings(): Readonly<Setting[]> {
+    return this.data.settings
   }
 }

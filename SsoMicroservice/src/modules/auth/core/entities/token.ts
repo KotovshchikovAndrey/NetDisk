@@ -1,7 +1,7 @@
 import { Entity } from "@libs/ddd/entity"
-import { IJwtPayload } from "@libs/jwt"
+import { JwtPayload } from "@libs/jwt"
 
-type ITokenData = {
+type TokenData = {
   createdAt: Date
   expiredAt: Date
   userId: string
@@ -9,12 +9,12 @@ type ITokenData = {
   isRevoked: boolean
 }
 
-export class Token extends Entity<ITokenData> {
-  constructor({ id, ...data }: ITokenData & { id?: string }) {
+export class Token extends Entity<TokenData> {
+  constructor({ id, ...data }: TokenData & { id?: string }) {
     super(data, id)
   }
 
-  static create(payload: IJwtPayload, deviceId: string) {
+  static create(payload: JwtPayload, deviceId: string) {
     return new Token({
       id: payload.jti,
       userId: payload.sub,

@@ -52,19 +52,19 @@ import { MongooseModule } from "@nestjs/mongoose"
       connectionName: "settings",
     }),
 
-    // MongooseModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     uri: configService.get<string>("MONGO_ADDR"),
-    //     dbName: configService.get<string>("MONGO_DB"),
-    //     auth: {
-    //       username: configService.get<string>("MONGO_USERNAME"),
-    //       password: configService.get<string>("MONGO_PASSWORD"),
-    //     },
-    //   }),
-    //   inject: [ConfigService],
-    //   connectionName: "profiles",
-    // }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>("MONGO_ADDR"),
+        dbName: configService.get<string>("MONGO_DB"),
+        auth: {
+          username: configService.get<string>("MONGO_USERNAME"),
+          password: configService.get<string>("MONGO_PASSWORD"),
+        },
+      }),
+      inject: [ConfigService],
+      connectionName: "profiles",
+    }),
 
     AuthModule,
     ProfileModule,

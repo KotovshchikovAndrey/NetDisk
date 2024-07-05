@@ -1,8 +1,8 @@
-import { ProfileSettings } from "../config/enums"
-import { ISetting, SingleSetting, ToggleSetting } from "../entities/setting"
+import { ProfileSettings } from "../config/enum"
+import { Setting, SingleSetting, ToggleSetting } from "../entities/setting"
 
 abstract class ProfileSettingFactory {
-  abstract create(): ISetting
+  abstract create(): Setting
 }
 
 export class TwoFactorSettingFactory extends ProfileSettingFactory {

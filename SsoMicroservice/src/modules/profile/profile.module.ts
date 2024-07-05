@@ -3,6 +3,8 @@ import { MongooseModule } from "@nestjs/mongoose"
 import {
   MultipleSettingModel,
   MultipleSettingSchema,
+  ProfileModel,
+  ProfileSchema,
   SingleSettingModel,
   SingleSettingSchema,
   ToggleSettingModel,
@@ -28,6 +30,11 @@ import { ProfileMongoRepository } from "./adapters/storage/mongo/profile.reposit
         { name: MultipleSettingModel.name, schema: MultipleSettingSchema },
       ],
       "settings",
+    ),
+
+    MongooseModule.forFeature(
+      [{ name: ProfileModel.name, schema: ProfileSchema }],
+      "profiles",
     ),
   ],
   providers: [

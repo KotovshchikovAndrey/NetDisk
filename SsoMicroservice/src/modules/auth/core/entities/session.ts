@@ -1,14 +1,14 @@
 import { addTimeToDate, getUtcNowDate } from "@libs/datetime"
 import { Entity } from "@libs/ddd/entity"
 
-type ISessionData = {
+type SessionData = {
   userId: string
   createdAt: Date
   expiredAt: Date
 }
 
-export class Session extends Entity<ISessionData> {
-  constructor({ id, ...data }: ISessionData & { id?: string }) {
+export class Session extends Entity<SessionData> {
+  constructor({ id, ...data }: SessionData & { id?: string }) {
     super(data, id)
   }
 

@@ -1,24 +1,23 @@
 import { Entity } from "@libs/ddd/entity"
 import { ValidationError } from "@modules/common/error"
 
-export type ISingleSettingData = {
+export type SingleSettingData = {
   allowedOptions: Set<string>
   selectedOption: string
 }
 
-export type IMultipleSettingData = {
+export type MultipleSettingData = {
   allowedOptions: Set<string>
   selectedOptions: Set<string>
 }
 
-export type IToggleSettingData = {
+export type ToggleSettingData = {
   isEnabled: boolean
 }
+export type Setting = SingleSetting | MultipleSetting | ToggleSetting
 
-export type ISetting = SingleSetting | MultipleSetting | ToggleSetting
-
-export class SingleSetting extends Entity<ISingleSettingData> {
-  constructor({ id, ...data }: ISingleSettingData & { id?: string }) {
+export class SingleSetting extends Entity<SingleSettingData> {
+  constructor({ id, ...data }: SingleSettingData & { id?: string }) {
     super(data, id)
   }
 
@@ -39,8 +38,8 @@ export class SingleSetting extends Entity<ISingleSettingData> {
   }
 }
 
-export class MultipleSetting extends Entity<IMultipleSettingData> {
-  constructor({ id, ...data }: IMultipleSettingData & { id?: string }) {
+export class MultipleSetting extends Entity<MultipleSettingData> {
+  constructor({ id, ...data }: MultipleSettingData & { id?: string }) {
     super(data, id)
   }
 
@@ -61,8 +60,8 @@ export class MultipleSetting extends Entity<IMultipleSettingData> {
   }
 }
 
-export class ToggleSetting extends Entity<IToggleSettingData> {
-  constructor({ id, ...data }: IToggleSettingData & { id?: string }) {
+export class ToggleSetting extends Entity<ToggleSettingData> {
+  constructor({ id, ...data }: ToggleSettingData & { id?: string }) {
     super(data, id)
   }
 

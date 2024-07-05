@@ -12,21 +12,21 @@ export class InvalidJwtError extends Error {
   }
 }
 
-export type IJwtPayload = {
+export type JwtPayload = {
   jti: string
   sub: string
   iat: number
   exp: number
 }
 
-export const generateRS256Jwt = (payload: IJwtPayload, privateKey: string) => {
+export const generateRS256Jwt = (payload: JwtPayload, privateKey: string) => {
   return jwt.sign(payload, privateKey, { algorithm: "RS256" })
 }
 
 export const validateRS256Jwt = (token: string, publicKey: string) => {
   try {
     const payload = jwt.verify(token, publicKey)
-    return payload as IJwtPayload
+    return payload as JwtPayload
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       throw new JwtExpiredError()
@@ -39,7 +39,7 @@ export const validateRS256Jwt = (token: string, publicKey: string) => {
 export const decodeJwt = (token: string) => {
   try {
     const payload = jwt.decode(token)
-    return payload as IJwtPayload
+    return payload as JwtPayload
   } catch (err) {
     if (err instanceof jwt.JsonWebTokenError) {
       throw new InvalidJwtError()

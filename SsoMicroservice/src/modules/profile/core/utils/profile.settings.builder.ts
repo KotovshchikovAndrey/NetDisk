@@ -1,17 +1,17 @@
-import { ISetting } from "../entities/setting"
+import { Setting } from "../entities/setting"
 import {
   BackgroundColorSettingFactory,
   TwoFactorSettingFactory,
 } from "./profile.settings.factory"
 
 export class ProfileSettingsBuilder {
-  private readonly settings: ISetting[] = []
+  private readonly settings: Setting[] = []
 
   build() {
     return this.settings
   }
 
-  add(setting: ISetting) {
+  add(setting: Setting) {
     this.settings.push(setting)
     return this
   }

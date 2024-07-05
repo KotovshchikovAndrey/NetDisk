@@ -1,5 +1,4 @@
 import { randomUUID } from "crypto"
-import { IDomainEvent } from "./event"
 
 export abstract class Entity<T> {
   protected readonly _id: string

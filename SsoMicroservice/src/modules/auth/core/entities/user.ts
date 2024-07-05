@@ -7,9 +7,9 @@ import {
 import { randomUUID } from "crypto"
 import { comparePasswordHash, hashPassword } from "@libs/cryptography"
 import { Entity } from "@libs/ddd/entity"
-import { Email } from "@modules/common/value"
+import { Email } from "@modules/common/values/email"
 
-export type IUserData = {
+export type UserData = {
   name: string
   email: Email
   secret: string
@@ -21,18 +21,18 @@ export type IUserData = {
   accessCodes: AccessCode[]
 }
 
-type INewUserData = {
+type NewUserData = {
   name: string
   email: string
   password: string
 }
 
-export class User extends Entity<IUserData> {
-  constructor({ id, ...data }: IUserData & { id?: string }) {
+export class User extends Entity<UserData> {
+  constructor({ id, ...data }: UserData & { id?: string }) {
     super(data, id)
   }
 
-  static async create(data: INewUserData) {
+  static async create(data: NewUserData) {
     return new User({
       name: data.name,
       email: new Email(data.email),

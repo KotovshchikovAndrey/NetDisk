@@ -1,14 +1,14 @@
 import { User } from "@modules/auth/core/entities/user"
 import { IUserRepository } from "@modules/auth/core/ports/user.repository"
 import { Model } from "mongoose"
-import { UserDocument, UserModel } from "./model"
+import { UserModel } from "./model"
 import { InjectModel } from "@nestjs/mongoose"
 import { UserMapper } from "./mapper"
 
 export class UserMongoRepository implements IUserRepository {
   constructor(
     @InjectModel(UserModel.name, "users")
-    private readonly userCollection: Model<UserDocument>,
+    private readonly userCollection: Model<UserModel>,
   ) {}
 
   async findById(id: string) {

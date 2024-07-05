@@ -1,9 +1,9 @@
 import { AccessCodeObjective } from "@modules/auth/core/values/access.code"
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
-import { Document } from "mongoose"
+import { HydratedDocument } from "mongoose"
 
-export type UserDocument = UserModel & Document
-export type TokenDocument = TokenModel & Document
+export type UserDocument = HydratedDocument<UserModel>
+export type TokenDocument = HydratedDocument<TokenModel>
 
 @Schema({ collection: "users", versionKey: false })
 export class UserModel {

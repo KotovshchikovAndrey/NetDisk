@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common"
 import { ITokenRepository } from "../ports/token.repository"
 import { TokenPairOutput } from "../dto/output"
 import {
-  IJwtPayload,
+  JwtPayload,
   InvalidJwtError,
   JwtExpiredError,
   decodeJwt,
@@ -30,14 +30,14 @@ export class TokenService {
       this.configService.get<string>("JWT_PRIVATE_KEY_PATH"),
     ).then((buffer) => buffer.toString())
 
-    const accessTokenPayload: IJwtPayload = {
+    const accessTokenPayload: JwtPayload = {
       jti: randomUUID(),
       sub: userId,
       iat: getCurrentTimestamp(),
       exp: getCurrentTimestamp() + 60 * 30, // 30 minutes
     }
 
-    const refreshTokenPayload: IJwtPayload = {
+    const refreshTokenPayload: JwtPayload = {
       jti: randomUUID(),
       sub: userId,
       iat: getCurrentTimestamp(),

@@ -2,7 +2,7 @@ import { User } from "@modules/auth/core/entities/user"
 import { TokenModel, UserModel } from "./model"
 import { Token } from "@modules/auth/core/entities/token"
 import { AccessCode } from "@modules/auth/core/values/access.code"
-import { Email } from "@modules/common/value"
+import { Email } from "@modules/common/values/email"
 
 export class UserMapper {
   static toDomain(model: UserModel) {
