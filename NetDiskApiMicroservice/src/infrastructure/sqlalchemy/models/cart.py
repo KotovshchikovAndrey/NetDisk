@@ -1,0 +1,40 @@
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, orm, text
+
+from infrastructure.sqlalchemy.models.base import BaseModel, TimestampMixin
+from infrastructure.sqlalchemy.models.resource import ResourceModel
+
+
+class CartModel(TimestampMixin, BaseModel):
+    owner_id: orm.Mapped[UUID] = orm.mapped_column(nullable=False, unique=True)
+
+    resources: orm.Mapped[list["CartResourceModel"]] = orm.relationship(
+        uselist=True,
+        lazy="noload",
+    )
+
+
+class CartResourceModel(BaseModel):
+    __table_args__ = (
+        UniqueConstraint("cart_id", "resource_id", name="unique_cart_resource_ids"),
+    )
+
+    cart_id: orm.Mapped[UUID] = orm.mapped_column(
+        ForeignKey("cart.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    resource_id: orm.Mapped[UUID] = orm.mapped_column(
+        ForeignKey("resource.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    deleted_at: orm.Mapped[datetime] = orm.mapped_column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=text("TIMEZONE('utc', NOW())"),
+    )
+
+    resource: orm.Mapped["ResourceModel"] = orm.relationship()
