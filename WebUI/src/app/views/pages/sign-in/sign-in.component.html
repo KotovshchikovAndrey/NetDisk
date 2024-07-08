@@ -1,0 +1,71 @@
+<div class="flex flex-col justify-center items-center h-screen">
+  <h2 class="text-center mb-10 text-2xl font-medium">Авторизация</h2>
+  <form
+    [formGroup]="form"
+    (ngSubmit)="submitForm()"
+    class="container flex flex-col max-w-sm mx-auto gap-y-5"
+  >
+    <div class="flex flex-col">
+      <input
+        formControlName="email"
+        class="border-2 border-black border-solid w-full rounded-lg py-3 px-3 outline-none focus:border-sky-400 focus:scale-105 transition"
+        type="text"
+        placeholder="Email"
+      />
+
+      @if(form.controls.email.invalid && form.controls.email.dirty) {
+      <p *ngIf="form.controls.email.errors?.required" class="text-red-500 pt-1">
+        Заполните поле
+      </p>
+
+      <p *ngIf="form.controls.email.errors?.email" class="text-red-500 pt-1">
+        Некорректный email
+      </p>
+      }
+    </div>
+
+    <div class="flex flex-col">
+      <input
+        formControlName="password"
+        class="border-2 border-black border-solid w-full rounded-lg py-3 px-3 outline-none focus:border-sky-400 focus:scale-105 transition"
+        [type]="isShowPassword() ? 'text' : 'password'"
+        placeholder="Пароль"
+      />
+
+      @if(form.controls.password.invalid && form.controls.password.dirty) {
+      <p
+        *ngIf="form.controls.password.errors?.required"
+        class="text-red-500 pt-1"
+      >
+        Заполните поле
+      </p>
+      }
+
+      <div class="flex pl-1 mt-3">
+        <input
+          (click)="toggleShowPassword()"
+          class="scale-150 cursor-pointer mr-3"
+          type="checkbox"
+        />
+        <p class="">Показать пароль</p>
+        <p
+          class="ml-auto cursor-pointer hover:text-sky-500 transition ease-in-out"
+        >
+          Забыли пароль?
+        </p>
+      </div>
+    </div>
+
+    <button
+      class="self-center py-3 px-10 mt-5 bg-sky-950 rounded-lg text-white hover:bg-sky-900 transition ease-in-out"
+    >
+      Войти
+    </button>
+
+    <p class="text-red-500 text-center">
+      {{ errorMessage() }}
+    </p>
+
+    <app-loader [isLoading]="isLoading()" />
+  </form>
+</div>
