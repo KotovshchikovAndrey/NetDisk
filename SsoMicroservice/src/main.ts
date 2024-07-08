@@ -15,6 +15,7 @@ async function bootstrap() {
     }),
   )
 
+  app.enableCors({ credentials: true, origin: "http://127.0.0.1:4200" })
   await app.listen(3000)
 }
 

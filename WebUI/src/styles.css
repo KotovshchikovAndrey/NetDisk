@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+img {
+    -webkit-user-drag: none;
+}
 
 /* @layer components {
     .active-nav-link {
